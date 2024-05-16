@@ -1,0 +1,2 @@
+# gyrio
+terminal database manager 
