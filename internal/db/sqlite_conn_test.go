@@ -9,13 +9,18 @@ import (
 
 func TestSqliteConnConnect(t *testing.T) {
 	c := SqliteConn{}
-	err := c.Connect(SqliteArgs{})
+	err := c.Connect(SqliteArgs{file: ":memory:"})
 	assert.NoError(t, err)
 }
 
 func TestSqliteConnClose(t *testing.T) {
 	c := SqliteConn{}
 	err := c.Close()
+	assert.Error(t, err)
+
+	err = c.Connect(SqliteArgs{file: ":memory:"})
+	assert.NoError(t, err)
+	err = c.Close()
 	assert.NoError(t, err)
 }
 

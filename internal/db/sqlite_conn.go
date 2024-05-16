@@ -3,11 +3,12 @@ package db
 import (
 	"errors"
 
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type SqliteArgs struct {
-	File string
+	file string
 }
 
 type SqliteConn struct {
@@ -15,10 +16,31 @@ type SqliteConn struct {
 }
 
 func (c *SqliteConn) Connect(args SqliteArgs) error {
+	db, err := gorm.Open(sqlite.Open(args.file), &gorm.Config{})
+	if err != nil {
+		return err
+	}
+
+	c.db = db
+
 	return nil
 }
 
 func (c *SqliteConn) Close() error {
+	if c.db == nil {
+		return errors.New("error, nil db conn")
+	}
+
+	db, err := c.db.DB()
+	if err != nil {
+		return err
+	}
+
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
