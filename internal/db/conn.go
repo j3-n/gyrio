@@ -5,5 +5,6 @@ type Connector interface {
 }
 
 var (
+	EmptyConn  = emptyConn{}
 	SQLiteConn = sqliteConn{}
 )
