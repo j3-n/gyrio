@@ -5,6 +5,6 @@ import "gorm.io/gorm"
 type emptyConn struct{}
 
 func (c emptyConn) Conn(args ...interface{}) (*DB, error) {
-	db := &DB{DB: &gorm.DB{}}
+	db := &DB{db: &gorm.DB{}, dbType: Empty}
 	return db, nil
 }

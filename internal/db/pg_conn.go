@@ -60,7 +60,7 @@ func (c pgConn) Conn(args ...interface{}) (*DB, error) {
 		return nil, err
 	}
 
-	db := &DB{DB: gdb}
+	db := &DB{db: gdb, dbType: Postgres}
 
 	return db, nil
 }
