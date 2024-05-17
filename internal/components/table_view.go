@@ -12,12 +12,18 @@ type TableView struct {
 
 	// Columns is a slice of column titles
 	Columns []string
+	// Style to use for column titles
+	ColumnTitleStyle ui.Style
+	// Style to use for column borders
+	ColumnBorderStyle ui.Style
 }
 
 // NewTableView initialises and returns a new TableView widget.
 func NewTableView() *TableView {
 	return &TableView{
-		Block: *ui.NewBlock(),
+		Block:             *ui.NewBlock(),
+		ColumnTitleStyle:  ui.NewStyle(ui.ColorWhite),
+		ColumnBorderStyle: ui.NewStyle(ui.ColorWhite),
 	}
 }
 
@@ -26,13 +32,33 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 
 	// Draw column titles
 	i := 1
-	for _, col := range t.Columns {
+	p := t.Inner.Min
+	for j, col := range t.Columns {
+		// Draw column border edges
+		switch j {
+		case 0:
+			buf.SetCell(ui.NewCell(ui.TOP_LEFT, t.ColumnBorderStyle), p)
+			buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, t.ColumnBorderStyle), p.Add(image.Pt(0, 1)))
+			buf.SetCell(ui.NewCell(ui.BOTTOM_LEFT, t.ColumnBorderStyle), p.Add(image.Pt(0, 2)))
+		default:
+			buf.SetCell(ui.NewCell(ui.HORIZONTAL_DOWN, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 0)))
+			buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 1)))
+			buf.SetCell(ui.NewCell(ui.HORIZONTAL_UP, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 2)))
+		}
+		// Draw titles
 		for _, c := range col {
-			cell := ui.NewCell(c, ui.NewStyle(ui.ColorWhite))
-			p := image.Pt(t.Inner.Min.X+i, t.Inner.Min.Y+1)
-			buf.SetCell(cell, p)
+			// Draw text
+			cell := ui.NewCell(c, t.ColumnTitleStyle)
+			buf.SetCell(cell, t.Inner.Min.Add(image.Pt(i, 1)))
+			// Draw top and bottom borders
+			buf.SetCell(ui.NewCell(ui.HORIZONTAL_LINE, t.ColumnBorderStyle), t.Inner.Min.Add(image.Pt(i, 0)))
+			buf.SetCell(ui.NewCell(ui.HORIZONTAL_LINE, t.ColumnBorderStyle), t.Inner.Min.Add(image.Pt(i, 2)))
 			i += 1
 		}
 		i += 1
 	}
+	// Draw last column border
+	buf.SetCell(ui.NewCell(ui.TOP_RIGHT, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 0)))
+	buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 1)))
+	buf.SetCell(ui.NewCell(ui.BOTTOM_RIGHT, t.ColumnBorderStyle), p.Add(image.Pt(i-1, 2)))
 }
