@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// Stores the type of database connection.
+// These are used for specific database queries.
 type DBType int
 
 const (
@@ -15,9 +17,9 @@ const (
 	MySQL                  // 3
 )
 
+// Stores the gorm database connection as well as the type of the database.
 type DB struct {
-	db *gorm.DB
-
+	db     *gorm.DB
 	dbType DBType
 }
 
@@ -67,6 +69,16 @@ func (d *DB) Tables() ([]string, error) {
 	}
 
 	return tables, nil
+}
+
+func (d *DB) List(tbl string, args ...interface{}) ([]map[string]any, error) {
+	var data []map[string]any
+	err := d.db.Table(tbl).Find(&tbl, args...).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (d *DB) Close() error {
