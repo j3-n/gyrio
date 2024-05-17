@@ -107,25 +107,30 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, len(croppedRows)*2+2)))
 		}
 	} else {
-		// Table is empty, draw a small empty row
-		width := util.Sum(croppedWidths) + len(croppedWidths) - 1
-		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2)), croppedWidths, PositionMiddle)
-		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 3)), []int{width}, PositionBottom)
-		// Merge columns
-		i := 0
-		for j, w := range croppedWidths {
-			i += w + 1
-			var r rune
-			switch j {
-			case len(croppedWidths) - 1:
-				r = ui.VERTICAL_LEFT
-			default:
-				r = ui.HORIZONTAL_UP
-			}
-			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(i, 2)))
-		}
+		drawEmptyRow(buf, t.TableBorderStyle, croppedWidths, t.Inner.Min)
 	}
 	drawScrollArrows(buf, t.ColumnTitleStyle, image.Pt(t.scrollX, t.scrollY), image.Pt(maxCols, maxRows), image.Pt(len(t.Columns), len(t.Data)), t.Inner)
+}
+
+// drawEmptyRow draws an empty row with no borders spanning the width of all the given columns.
+func drawEmptyRow(buf *ui.Buffer, style ui.Style, widths []int, origin image.Point) {
+	// Table is empty, draw a small empty row
+	width := util.Sum(widths) + len(widths) - 1
+	drawHorizontalBorder(buf, style, origin.Add(image.Pt(0, 2)), widths, PositionMiddle)
+	drawHorizontalBorder(buf, style, origin.Add(image.Pt(0, 3)), []int{width}, PositionBottom)
+	// Merge columns
+	i := 0
+	for j, w := range widths {
+		i += w + 1
+		var r rune
+		switch j {
+		case len(widths) - 1:
+			r = ui.VERTICAL_LEFT
+		default:
+			r = ui.HORIZONTAL_UP
+		}
+		buf.SetCell(ui.NewCell(r, style), origin.Add(image.Pt(i, 2)))
+	}
 }
 
 // drawScrollArrows draws the required scrolling arrows onto the buffer.
@@ -284,7 +289,7 @@ func (t *TableView) ScrollUp() {
 
 // ScrollUp scrolls the view up by 1 row.
 func (t *TableView) ScrollDown() {
-	t.scrollY = min(t.scrollY+1, len(t.Data)-1)
+	t.scrollY = max(0, min(t.scrollY+1, len(t.Data)-1))
 }
 
 // ScrollLeft scrolls the view left by 1 row.
@@ -294,5 +299,5 @@ func (t *TableView) ScrollLeft() {
 
 // ScrollRight scrolls the view right by 1 column.
 func (t *TableView) ScrollRight() {
-	t.scrollX = min(t.scrollX+1, len(t.Columns)-1)
+	t.scrollX = max(0, min(t.scrollX+1, len(t.Columns)-1))
 }
