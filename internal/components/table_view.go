@@ -1,6 +1,8 @@
 package components
 
 import (
+	"image"
+
 	ui "github.com/gizak/termui/v3"
 )
 
@@ -21,4 +23,16 @@ func NewTableView() *TableView {
 
 func (t *TableView) Draw(buf *ui.Buffer) {
 	t.Block.Draw(buf)
+
+	// Draw column titles
+	i := 1
+	for _, col := range t.Columns {
+		for _, c := range col {
+			cell := ui.NewCell(c, ui.NewStyle(ui.ColorWhite))
+			p := image.Pt(t.Inner.Min.X+i, t.Inner.Min.Y+1)
+			buf.SetCell(cell, p)
+			i += 1
+		}
+		i += 1
+	}
 }
