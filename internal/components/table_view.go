@@ -2,7 +2,6 @@ package components
 
 import (
 	"errors"
-	"fmt"
 	"image"
 
 	ui "github.com/gizak/termui/v3"
@@ -34,6 +33,8 @@ type TableView struct {
 	ColumnTitleStyle ui.Style
 	// Style to use for column borders
 	TableBorderStyle ui.Style
+
+	scrollX, scrollY int
 }
 
 // NewTableView initialises and returns a new empty TableView widget.
@@ -45,6 +46,9 @@ func NewTableView() *TableView {
 		TextAlignment:    ui.AlignLeft,
 		ColumnTitleStyle: ui.NewStyle(ui.ColorWhite),
 		TableBorderStyle: ui.NewStyle(ui.ColorWhite),
+
+		scrollX: 0,
+		scrollY: 0,
 	}
 }
 
@@ -58,10 +62,13 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 	}
 
 	// Check and enforce bounds
-	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 1)), 3, widths, 0)
+	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 1)), 3, widths, t.scrollX)
+	// Cap Y scroll
+	t.scrollY = min(len(t.Data)-maxRows, t.scrollY)
+	// Crop visible columns and rows to fit container
 	croppedWidths := widths[:min(maxCols, len(widths))]
 	croppedColumns := t.Columns[:min(maxCols, len(t.Columns))]
-	croppedRows := t.Data[:min(maxRows, len(t.Data))]
+	croppedRows := t.Data[t.scrollY:min(maxRows+t.scrollY, len(t.Data))]
 
 	// Draw column titles
 	drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min, croppedColumns, croppedWidths, PositionTop)
@@ -70,7 +77,7 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 	if len(t.Data) > 0 {
 		for i, r := range croppedRows {
 			var p Position
-			switch i {
+			switch i + t.scrollY {
 			case len(t.Data) - 1:
 				p = PositionBottom
 			default:
@@ -79,7 +86,7 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r[:min(maxCols, len(r))], croppedWidths, p)
 		}
 		// Draw another border if this isn't the end of the table (it's been cropped)
-		if len(croppedRows) < len(t.Data) {
+		if t.scrollY+len(croppedRows) < len(t.Data) {
 			drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2*maxRows+2)), croppedWidths, PositionMiddle)
 			buf.SetCell(ui.NewCell(ui.DOWN_ARROW, t.ColumnTitleStyle), t.Inner.Max.Sub(image.Pt(t.Inner.Max.X/2+1, 1)))
 		}
@@ -218,7 +225,6 @@ func computeWidths(titles []string, data [][]string) ([]int, error) {
 // the maximum number of rows and columns that can fit in the space the widget has been given at one time.
 // Takes into account the borders between cells.
 func computeBounds(min image.Point, max image.Point, rowHeight int, widths []int, currentCol int) (int, int) {
-	fmt.Print("\n\n\n\n\n\n\n\n\n\n\n")
 	bounds := max.Sub(min)
 	// Compute max rows
 	rows := bounds.Y / rowHeight
@@ -234,4 +240,14 @@ func computeBounds(min image.Point, max image.Point, rowHeight int, widths []int
 		}
 	}
 	return rows, cols
+}
+
+// ScrollUp scrolls the view up by 1 row.
+func (t *TableView) ScrollUp() {
+	t.scrollY = max(t.scrollY-1, 0)
+}
+
+// ScrollUp scrolls the view up by 1 row.
+func (t *TableView) ScrollDown() {
+	t.scrollY = min(t.scrollY+1, len(t.Data)-1)
 }
