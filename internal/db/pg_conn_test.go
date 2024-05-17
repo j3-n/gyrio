@@ -1,30 +1,41 @@
 package db
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
-func TestPgConnConnect(t *testing.T) {
-	c := PgConn{}
-	err := c.Connect(PgArgs{})
-	assert.NoError(t, err)
+func TestPgConn(t *testing.T) {
+	c := pgConn{}
+
+	assert.True(t, reflect.TypeOf(c).Implements(reflect.TypeOf((*Connector)(nil)).Elem()))
 }
 
-func TestPgConnClose(t *testing.T) {
-	c := PgConn{}
-	err := c.Close()
-	assert.NoError(t, err)
-}
+func TestPgConnConn(t *testing.T) {
+	c := pgConn{}
 
-func TestPgConnDB(t *testing.T) {
-	c := PgConn{}
-	_, err := c.DB()
+	_, err := c.Conn()
 	assert.Error(t, err)
 
-	c.db = &gorm.DB{}
-	_, err = c.DB()
-	assert.NoError(t, err)
+	_, err = c.Conn("", "", "", "", "")
+	assert.Error(t, err)
+
+	_, err = c.Conn("addr", "", "", "", "")
+	assert.Error(t, err)
+
+	_, err = c.Conn("addr", "user", "", "", "")
+	assert.Error(t, err)
+
+	_, err = c.Conn("addr", "user", "pass", "", "")
+	assert.Error(t, err)
+
+	_, err = c.Conn("addr", "user", "pass", "name", "")
+	assert.Error(t, err)
+
+	_, err = c.Conn("addr", "user", "pass", "name", "12345")
+	assert.Error(t, err)
+
+	// TODO: test real conn
 }
