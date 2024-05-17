@@ -25,6 +25,15 @@ func TestColumnWidths(t *testing.T) {
 			ShouldFail: false,
 		},
 		{
+			Name:   "SecondNormalOneRow",
+			Titles: []string{"a", "b", "c", "d"},
+			Data: [][]string{
+				{"aaaa", "bbb", "ccc", "dddd"},
+			},
+			Result:     []int{4, 3, 3, 4},
+			ShouldFail: false,
+		},
+		{
 			Name:   "NormalOneEmptyRow",
 			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
@@ -63,7 +72,6 @@ func TestColumnWidths(t *testing.T) {
 				{"a", "bb", "ccc"},
 				{"aa", "b", "c", "dd"},
 			},
-			Result:     []int{2, 2, 3, 4},
 			ShouldFail: true,
 		},
 		{
@@ -74,7 +82,21 @@ func TestColumnWidths(t *testing.T) {
 				{"a", "bb", "ccc", "dd"},
 				{"aa", "b", "c", "dd", "ee"},
 			},
-			Result:     []int{2, 2, 3, 4},
+			ShouldFail: true,
+		},
+		{
+			Name:       "NoData",
+			Titles:     []string{"a", "b", "c", "d"},
+			Data:       [][]string{},
+			Result:     []int{1, 1, 1, 1},
+			ShouldFail: false,
+		},
+		{
+			Name:   "NoColumnTitles",
+			Titles: []string{},
+			Data: [][]string{
+				{"a", "b", "c", "d"},
+			},
 			ShouldFail: true,
 		},
 	}

@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 
 	ui "github.com/gizak/termui/v3"
+	"github.com/j3-n/gyrio/internal/pkg/util"
 )
 
 var ErrColumnCountMismatch = errors.New("number of columns in each row must be constant")
@@ -27,6 +28,8 @@ type TableView struct {
 	Columns []string
 	// Data is the data to populate the table with
 	Data [][]string
+	// Text alignment mode to use for cell contents
+	TextAlignment ui.Alignment
 	// Style to use for column titles
 	ColumnTitleStyle ui.Style
 	// Style to use for column borders
@@ -39,6 +42,7 @@ func NewTableView() *TableView {
 		Block:            *ui.NewBlock(),
 		Columns:          []string{},
 		Data:             [][]string{},
+		TextAlignment:    ui.AlignLeft,
 		ColumnTitleStyle: ui.NewStyle(ui.ColorWhite),
 		TableBorderStyle: ui.NewStyle(ui.ColorWhite),
 	}
@@ -57,15 +61,35 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 	drawRow(buf, t.TableBorderStyle, t.Inner.Min, t.Columns, widths, PositionTop)
 
 	// Draw rows
-	for i, r := range t.Data {
-		var p Position
-		switch i {
-		case len(t.Data) - 1:
-			p = PositionBottom
-		default:
-			p = PositionMiddle
+	if len(t.Data) > 0 {
+		for i, r := range t.Data {
+			var p Position
+			switch i {
+			case len(t.Data) - 1:
+				p = PositionBottom
+			default:
+				p = PositionMiddle
+			}
+			drawRow(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r, widths, p)
 		}
-		drawRow(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r, widths, p)
+	} else {
+		// Table is empty, draw a small empty row
+		width := util.Sum(widths) + len(widths) - 1
+		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2)), widths, PositionMiddle)
+		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 3)), []int{width}, PositionBottom)
+		// Merge columns
+		i := 0
+		for j, w := range widths {
+			i += w + 1
+			var r rune
+			switch j {
+			case len(widths) - 1:
+				r = ui.VERTICAL_LEFT
+			default:
+				r = ui.HORIZONTAL_UP
+			}
+			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(i, 2)))
+		}
 	}
 }
 
@@ -147,16 +171,23 @@ func drawRow(buf *ui.Buffer, style ui.Style, offset image.Point, row []string, w
 // Returns an ErrColumnCountMismatch if a row contains more columns than titles.
 func computeWidths(titles []string, data [][]string) ([]int, error) {
 	result := []int{}
-	// Initialise columns
-	for range data[0] {
-		result = append(result, 0)
-	}
-	for _, r := range data {
-		if len(r) != len(titles) {
-			return []int{}, ErrColumnCountMismatch
+	if len(data) > 0 {
+		// Initialise columns
+		for range data[0] {
+			result = append(result, 0)
 		}
-		for i, c := range r {
-			result[i] = max(len(c), result[i], len(titles[i]))
+		for _, r := range data {
+			if len(r) != len(titles) {
+				return []int{}, ErrColumnCountMismatch
+			}
+			for i, c := range r {
+				result[i] = max(len(c), result[i], len(titles[i]))
+			}
+		}
+	} else {
+		// Empty table
+		for _, t := range titles {
+			result = append(result, len(t))
 		}
 	}
 	return result, nil
