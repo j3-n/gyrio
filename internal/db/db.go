@@ -23,6 +23,7 @@ type DB struct {
 	dbType DBType
 }
 
+// Pings the database and errors if it fails
 func (d *DB) Ping() error {
 	sql, err := d.db.DB()
 	if err != nil {
@@ -37,14 +38,19 @@ func (d *DB) Ping() error {
 	return nil
 }
 
+// Gives a pointer to the currently held gorm instance of the DB.
+// Use this if you would like more specific queries.
 func (d *DB) DB() *gorm.DB {
 	return d.db
 }
 
+// Gives the type of the DB instance.
 func (d *DB) DBType() DBType {
 	return d.dbType
 }
 
+// Returns a string array of all table names from the connected database.
+// Will use different queries based on the Database type, like PG, SQLite, etc.
 func (d *DB) Tables() ([]string, error) {
 	cmd := func() string {
 		if d.dbType == SQLite {
@@ -71,6 +77,9 @@ func (d *DB) Tables() ([]string, error) {
 	return tables, nil
 }
 
+// Lists all of the entries from a given table to a an array of map[string]any.
+// Also returns the error of the query.
+// Use the args if you would like a more specific query, for example (..., "id = ?", 1).
 func (d *DB) List(tbl string, args ...interface{}) ([]map[string]any, error) {
 	var data []map[string]any
 	err := d.db.Table(tbl).Find(&tbl, args...).Error
@@ -81,6 +90,8 @@ func (d *DB) List(tbl string, args ...interface{}) ([]map[string]any, error) {
 	return data, nil
 }
 
+// Closes a connection to the database instance.
+// Should often defer the closing of the database after creating an instance of it, if in main.
 func (d *DB) Close() error {
 	sql, err := d.db.DB()
 	if err != nil {
