@@ -14,14 +14,43 @@ func TestSqliteConn(t *testing.T) {
 }
 
 func TestSqliteConnConn(t *testing.T) {
+	testData := []struct {
+		Name  string
+		Data  []interface{}
+		Fails bool
+	}{
+		{
+			Name:  "empty args",
+			Data:  []interface{}{},
+			Fails: true,
+		},
+		{
+			Name:  "empty file",
+			Data:  []interface{}{""},
+			Fails: true,
+		},
+		{
+			Name:  "wrong type",
+			Data:  []interface{}{1},
+			Fails: true,
+		},
+		{
+			Name:  "valid in memory db",
+			Data:  []interface{}{":memory:"},
+			Fails: false,
+		},
+	}
+
 	c := sqliteConn{}
 
-	_, err := c.Conn(":memory:")
-	assert.NoError(t, err)
-
-	_, err = c.Conn()
-	assert.Error(t, err)
-
-	_, err = c.Conn("")
-	assert.Error(t, err)
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			_, err := c.Conn(test.Data...)
+			if test.Fails {
+				assert.Error(t, err, "failed to connect")
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

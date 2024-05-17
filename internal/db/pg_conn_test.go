@@ -14,28 +14,70 @@ func TestPgConn(t *testing.T) {
 }
 
 func TestPgConnConn(t *testing.T) {
+	testData := []struct {
+		Name  string
+		Data  []interface{}
+		Fails bool
+	}{
+		{
+			Name:  "empty args",
+			Data:  []interface{}{},
+			Fails: true,
+		},
+		{
+			Name:  `full args but all ""`,
+			Data:  []interface{}{"", "", "", "", ""},
+			Fails: true,
+		},
+		{
+			Name:  "only addr test",
+			Data:  []interface{}{"addr", "", "", "", ""},
+			Fails: true,
+		},
+		{
+			Name:  "addr, user test",
+			Data:  []interface{}{"addr", "user", "", "", ""},
+			Fails: true,
+		},
+		{
+			Name:  "addr, user, password test",
+			Data:  []interface{}{"addr", "user", "pass", "", ""},
+			Fails: true,
+		},
+		{
+			Name:  "addr, user, password, name test",
+			Data:  []interface{}{"addr", "user", "pass", "name", ""},
+			Fails: true,
+		},
+		{
+			Name:  "addr, user, password, name, port test",
+			Data:  []interface{}{"addr", "user", "pass", "name", "12345"},
+			Fails: true,
+		},
+		{
+			Name:  "wrong type test",
+			Data:  []interface{}{1, "", "", "", ""},
+			Fails: true,
+		},
+		{
+			Name:  "wrong type test",
+			Data:  []interface{}{1, 1, 1, 1, 1},
+			Fails: true,
+		},
+	}
+
 	c := pgConn{}
 
-	_, err := c.Conn()
-	assert.Error(t, err)
-
-	_, err = c.Conn("", "", "", "", "")
-	assert.Error(t, err)
-
-	_, err = c.Conn("addr", "", "", "", "")
-	assert.Error(t, err)
-
-	_, err = c.Conn("addr", "user", "", "", "")
-	assert.Error(t, err)
-
-	_, err = c.Conn("addr", "user", "pass", "", "")
-	assert.Error(t, err)
-
-	_, err = c.Conn("addr", "user", "pass", "name", "")
-	assert.Error(t, err)
-
-	_, err = c.Conn("addr", "user", "pass", "name", "12345")
-	assert.Error(t, err)
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			_, err := c.Conn(test.Data...)
+			if test.Fails {
+				assert.Error(t, err, "failed to connect")
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 
 	// TODO: test real conn
 }
