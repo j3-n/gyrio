@@ -62,7 +62,7 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 	}
 
 	// Check and enforce bounds
-	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 1)), 3, widths, t.scrollX)
+	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 2)), 3, widths, t.scrollX)
 	maxRows = min(maxRows, len(t.Data))
 	maxCols = min(maxCols, len(t.Columns))
 	// Cap Y scroll
