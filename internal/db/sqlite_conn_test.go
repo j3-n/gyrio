@@ -1,35 +1,27 @@
 package db
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
-func TestSqliteConnConnect(t *testing.T) {
-	c := SqliteConn{}
-	err := c.Connect(SqliteArgs{file: ":memory:"})
-	assert.NoError(t, err)
+func TestSqliteConn(t *testing.T) {
+	c := sqliteConn{}
+
+	assert.True(t, reflect.TypeOf(c).Implements(reflect.TypeOf((*Connector)(nil)).Elem()))
 }
 
-func TestSqliteConnClose(t *testing.T) {
-	c := SqliteConn{}
-	err := c.Close()
+func TestSqliteConnConn(t *testing.T) {
+	c := sqliteConn{}
+
+	_, err := c.Conn(":memory:")
+	assert.NoError(t, err)
+
+	_, err = c.Conn()
 	assert.Error(t, err)
 
-	err = c.Connect(SqliteArgs{file: ":memory:"})
-	assert.NoError(t, err)
-	err = c.Close()
-	assert.NoError(t, err)
-}
-
-func TestSqliteConnDB(t *testing.T) {
-	c := SqliteConn{}
-	_, err := c.DB()
+	_, err = c.Conn("")
 	assert.Error(t, err)
-
-	c.db = &gorm.DB{}
-	_, err = c.DB()
-	assert.NoError(t, err)
 }

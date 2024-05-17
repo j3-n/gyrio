@@ -7,47 +7,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type SqliteArgs struct {
-	file string
-}
+type sqliteConn struct{}
 
-type SqliteConn struct {
-	db *gorm.DB
-}
+func (c sqliteConn) Conn(args ...interface{}) (*DB, error) {
+	if len(args) != 1 {
+		return nil, errors.New("error, please give database file")
+	}
 
-func (c *SqliteConn) Connect(args SqliteArgs) error {
-	db, err := gorm.Open(sqlite.Open(args.file), &gorm.Config{})
+	file, ok := args[0].(string)
+	if !ok || file == "" {
+		return nil, errors.New("error, invalid database file given")
+	}
+
+	gdb, err := gorm.Open(sqlite.Open(file), &gorm.Config{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	c.db = db
+	db := &DB{DB: gdb}
 
-	return nil
-}
-
-func (c *SqliteConn) Close() error {
-	if c.db == nil {
-		return errors.New("error, nil db conn")
-	}
-
-	db, err := c.db.DB()
-	if err != nil {
-		return err
-	}
-
-	err = db.Close()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *SqliteConn) DB() (*gorm.DB, error) {
-	if c.db == nil {
-		return nil, errors.New("error, nil db conn")
-	}
-
-	return c.db, nil
+	return db, nil
 }
