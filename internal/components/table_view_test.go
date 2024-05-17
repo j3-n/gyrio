@@ -10,12 +10,14 @@ import (
 func TestColumnWidths(t *testing.T) {
 	testData := []struct {
 		Name       string
+		Titles     []string
 		Data       [][]string
 		Result     []int
 		ShouldFail bool
 	}{
 		{
-			Name: "NormalOneRow",
+			Name:   "NormalOneRow",
+			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
 				{"a", "bb", "ccc", "dddd"},
 			},
@@ -23,15 +25,17 @@ func TestColumnWidths(t *testing.T) {
 			ShouldFail: false,
 		},
 		{
-			Name: "NormalOneEmptyRow",
+			Name:   "NormalOneEmptyRow",
+			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
 				{"", "", "", ""},
 			},
-			Result:     []int{0, 0, 0, 0},
+			Result:     []int{1, 1, 1, 1},
 			ShouldFail: false,
 		},
 		{
-			Name: "NormalMultipleRows",
+			Name:   "NormalMultipleRows",
+			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
 				{"a", "bb", "c", "d"},
 				{"a", "bb", "ccc", "dddd"},
@@ -41,7 +45,19 @@ func TestColumnWidths(t *testing.T) {
 			ShouldFail: false,
 		},
 		{
-			Name: "ColumnMismatchTooFew",
+			Name:   "NormalLargeTitle",
+			Titles: []string{"aaaaa", "b", "c", "d"},
+			Data: [][]string{
+				{"a", "bb", "c", "d"},
+				{"a", "bb", "ccc", "dddd"},
+				{"aa", "b", "c", "dd"},
+			},
+			Result:     []int{5, 2, 3, 4},
+			ShouldFail: false,
+		},
+		{
+			Name:   "ColumnMismatchTooFew",
+			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
 				{"a", "bb", "c", "d"},
 				{"a", "bb", "ccc"},
@@ -51,7 +67,8 @@ func TestColumnWidths(t *testing.T) {
 			ShouldFail: true,
 		},
 		{
-			Name: "ColumnMismatchTooMany",
+			Name:   "ColumnMismatchTooMany",
+			Titles: []string{"a", "b", "c", "d"},
 			Data: [][]string{
 				{"a", "bb", "c", "d"},
 				{"a", "bb", "ccc", "dd"},
@@ -64,7 +81,7 @@ func TestColumnWidths(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.Name, func(t *testing.T) {
-			r, err := computeWidths(test.Data)
+			r, err := computeWidths(test.Titles, test.Data)
 			if test.ShouldFail {
 				assert.Error(t, err, "Test that computeWidths fails when expected")
 			} else {
