@@ -63,11 +63,13 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 
 	// Check and enforce bounds
 	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 1)), 3, widths, t.scrollX)
+	maxRows = min(maxRows, len(t.Data))
+	maxCols = min(maxCols, len(t.Columns))
 	// Cap Y scroll
 	t.scrollY = min(len(t.Data)-maxRows, t.scrollY)
 	// Crop visible columns and rows to fit container
-	croppedWidths := widths[:min(maxCols, len(widths))]
-	croppedColumns := t.Columns[:min(maxCols, len(t.Columns))]
+	croppedWidths := widths[t.scrollX:min(maxCols+t.scrollX, len(widths))]
+	croppedColumns := t.Columns[t.scrollX:min(maxCols+t.scrollX, len(t.Columns))]
 	croppedRows := t.Data[t.scrollY:min(maxRows+t.scrollY, len(t.Data))]
 
 	// Draw column titles
@@ -83,12 +85,26 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			default:
 				p = PositionMiddle
 			}
-			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r[:min(maxCols, len(r))], croppedWidths, p)
+			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r[t.scrollX:min(maxCols+t.scrollX, len(r))], croppedWidths, p)
 		}
 		// Draw another border if this isn't the end of the table (it's been cropped)
 		if t.scrollY+len(croppedRows) < len(t.Data) {
 			drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2*maxRows+2)), croppedWidths, PositionMiddle)
-			buf.SetCell(ui.NewCell(ui.DOWN_ARROW, t.ColumnTitleStyle), t.Inner.Max.Sub(image.Pt(t.Inner.Max.X/2+1, 1)))
+		}
+		// Draw the same for vertical
+		if t.scrollX+len(croppedColumns) < len(t.Columns) {
+			width := util.Sum(croppedWidths) + len(croppedWidths)
+			buf.SetCell(ui.NewCell(ui.HORIZONTAL_DOWN, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, 0)))
+			for i := range len(croppedRows) {
+				buf.SetCell(ui.NewCell('┼', t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, i*2+2)))
+			}
+			var r rune
+			if t.scrollY+len(croppedRows) < len(t.Data) {
+				r = '┼'
+			} else {
+				r = ui.HORIZONTAL_UP
+			}
+			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, len(croppedRows)*2+2)))
 		}
 	} else {
 		// Table is empty, draw a small empty row
@@ -109,9 +125,28 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(i, 2)))
 		}
 	}
-	// Draw column extra arrow if needed
-	if len(t.Columns) > maxCols {
-		buf.SetCell(ui.NewCell('►', t.ColumnTitleStyle), t.Inner.Max.Sub(image.Pt(1, t.Inner.Max.Y/2+1)))
+	drawScrollArrows(buf, t.ColumnTitleStyle, image.Pt(t.scrollX, t.scrollY), image.Pt(maxCols, maxRows), image.Pt(len(t.Columns), len(t.Data)), t.Inner)
+}
+
+// drawScrollArrows draws the required scrolling arrows onto the buffer.
+// scroll is the current X and Y scroll, max is the max number of rows (Y) and cols (X) as calculated by compute Bounds,
+// data is the size of the rows and columns of the data itself. bounds are the inner bounds of the element.
+func drawScrollArrows(buf *ui.Buffer, style ui.Style, scroll image.Point, max image.Point, data image.Point, bounds image.Rectangle) {
+	if scroll.X > 0 {
+		// Left scroll arrow
+		buf.SetCell(ui.NewCell('◄', style), image.Pt(1, bounds.Dy()/2))
+	}
+	if scroll.Y > 0 {
+		// Top scroll arrow
+		buf.SetCell(ui.NewCell(ui.UP_ARROW, style), image.Pt(bounds.Dx()/2, 1))
+	}
+	if scroll.X+max.X < data.X {
+		// Right scroll arrow
+		buf.SetCell(ui.NewCell('►', style), bounds.Max.Sub(image.Pt(1, bounds.Dy()/2+1)))
+	}
+	if scroll.Y+max.Y < data.Y {
+		// Bottom scroll arrow
+		buf.SetCell(ui.NewCell(ui.DOWN_ARROW, style), bounds.Max.Sub(image.Pt(bounds.Dx()/2+1, 1)))
 	}
 }
 
@@ -250,4 +285,14 @@ func (t *TableView) ScrollUp() {
 // ScrollUp scrolls the view up by 1 row.
 func (t *TableView) ScrollDown() {
 	t.scrollY = min(t.scrollY+1, len(t.Data)-1)
+}
+
+// ScrollLeft scrolls the view left by 1 row.
+func (t *TableView) ScrollLeft() {
+	t.scrollX = max(0, t.scrollX-1)
+}
+
+// ScrollRight scrolls the view right by 1 column.
+func (t *TableView) ScrollRight() {
+	t.scrollX = min(t.scrollX+1, len(t.Columns)-1)
 }

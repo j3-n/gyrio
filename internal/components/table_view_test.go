@@ -160,7 +160,7 @@ func TestComputeBounds(t *testing.T) {
 			Min:        image.Pt(0, 0),
 			Max:        image.Pt(10, 10),
 			RowHeight:  3,
-			Widths:     []int{2, 5, 1, 1},
+			Widths:     []int{2, 5, 1, 5},
 			CurrentCol: 1,
 			ResultRows: 3,
 			ResultCols: 2,
