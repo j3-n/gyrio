@@ -2,6 +2,7 @@ package components
 
 import (
 	"errors"
+	"fmt"
 	"image"
 
 	ui "github.com/gizak/termui/v3"
@@ -56,12 +57,18 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 		return
 	}
 
+	// Check and enforce bounds
+	maxRows, maxCols := computeBounds(t.Inner.Min, t.Inner.Max.Sub(image.Pt(1, 1)), 3, widths, 0)
+	croppedWidths := widths[:min(maxCols, len(widths))]
+	croppedColumns := t.Columns[:min(maxCols, len(t.Columns))]
+	croppedRows := t.Data[:min(maxRows, len(t.Data))]
+
 	// Draw column titles
-	drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min, t.Columns, widths, PositionTop)
+	drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min, croppedColumns, croppedWidths, PositionTop)
 
 	// Draw rows
 	if len(t.Data) > 0 {
-		for i, r := range t.Data {
+		for i, r := range croppedRows {
 			var p Position
 			switch i {
 			case len(t.Data) - 1:
@@ -69,26 +76,35 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			default:
 				p = PositionMiddle
 			}
-			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r, widths, p)
+			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r[:min(maxCols, len(r))], croppedWidths, p)
+		}
+		// Draw another border if this isn't the end of the table (it's been cropped)
+		if len(croppedRows) < len(t.Data) {
+			drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2*maxRows+2)), croppedWidths, PositionMiddle)
+			buf.SetCell(ui.NewCell(ui.DOWN_ARROW, t.ColumnTitleStyle), t.Inner.Max.Sub(image.Pt(t.Inner.Max.X/2+1, 1)))
 		}
 	} else {
 		// Table is empty, draw a small empty row
-		width := util.Sum(widths) + len(widths) - 1
-		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2)), widths, PositionMiddle)
+		width := util.Sum(croppedWidths) + len(croppedWidths) - 1
+		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 2)), croppedWidths, PositionMiddle)
 		drawHorizontalBorder(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, 3)), []int{width}, PositionBottom)
 		// Merge columns
 		i := 0
-		for j, w := range widths {
+		for j, w := range croppedWidths {
 			i += w + 1
 			var r rune
 			switch j {
-			case len(widths) - 1:
+			case len(croppedWidths) - 1:
 				r = ui.VERTICAL_LEFT
 			default:
 				r = ui.HORIZONTAL_UP
 			}
 			buf.SetCell(ui.NewCell(r, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(i, 2)))
 		}
+	}
+	// Draw column extra arrow if needed
+	if len(t.Columns) > maxCols {
+		buf.SetCell(ui.NewCell('►', t.ColumnTitleStyle), t.Inner.Max.Sub(image.Pt(1, t.Inner.Max.Y/2+1)))
 	}
 }
 
@@ -196,4 +212,26 @@ func computeWidths(titles []string, data [][]string) ([]int, error) {
 		}
 	}
 	return result, nil
+}
+
+// computeBounds runs a bounds check on the table based on the current horizontal scroll and row height and returns
+// the maximum number of rows and columns that can fit in the space the widget has been given at one time.
+// Takes into account the borders between cells.
+func computeBounds(min image.Point, max image.Point, rowHeight int, widths []int, currentCol int) (int, int) {
+	fmt.Print("\n\n\n\n\n\n\n\n\n\n\n")
+	bounds := max.Sub(min)
+	// Compute max rows
+	rows := bounds.Y / rowHeight
+	// Compute max cols
+	i := 1
+	cols := 0
+	for _, col := range widths[currentCol:] {
+		if i+col <= bounds.X {
+			cols += 1
+			i += col + 1
+		} else {
+			break
+		}
+	}
+	return rows, cols
 }

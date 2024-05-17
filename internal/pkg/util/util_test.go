@@ -7,40 +7,40 @@ import (
 )
 
 func TestSum(t *testing.T) {
-	testCases := []struct {
-		Title  string
+	testData := []struct {
+		Name   string
 		Input  []int
 		Result int
 	}{
 		{
-			Title:  "Normal",
+			Name:   "Normal",
 			Input:  []int{1, 2, 3, 4},
 			Result: 10,
 		},
 		{
-			Title:  "SecondNormal",
+			Name:   "SecondNormal",
 			Input:  []int{5, 3, 2, 5},
 			Result: 15,
 		},
 		{
-			Title:  "Empty",
+			Name:   "Empty",
 			Input:  []int{},
 			Result: 0,
 		},
 		{
-			Title:  "Negative",
+			Name:   "Negative",
 			Input:  []int{10, -10, -15},
 			Result: -15,
 		},
 		{
-			Title:  "SecondNegative",
+			Name:   "SecondNegative",
 			Input:  []int{-10, -10, 25},
 			Result: 5,
 		},
 	}
 
-	for _, test := range testCases {
-		t.Run(test.Title, func(t *testing.T) {
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
 			sum := Sum(test.Input)
 			assert.Equal(t, test.Result, sum, "Test that sum returned the expected result")
 		})

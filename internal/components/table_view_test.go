@@ -1,6 +1,7 @@
 package components
 
 import (
+	"image"
 	"reflect"
 	"testing"
 
@@ -109,6 +110,68 @@ func TestColumnWidths(t *testing.T) {
 			} else {
 				assert.True(t, reflect.DeepEqual(r, test.Result), "Test that computeWidths returns the expected result")
 			}
+		})
+	}
+}
+
+func TestComputeBounds(t *testing.T) {
+	testData := []struct {
+		Name       string
+		Min        image.Point
+		Max        image.Point
+		RowHeight  int
+		Widths     []int
+		CurrentCol int
+		ResultRows int
+		ResultCols int
+	}{
+		{
+			Name:       "Normal",
+			Min:        image.Pt(0, 0),
+			Max:        image.Pt(10, 10),
+			RowHeight:  3,
+			Widths:     []int{5, 5, 5},
+			CurrentCol: 0,
+			ResultRows: 3,
+			ResultCols: 1,
+		},
+		{
+			Name:       "NormalThickRows",
+			Min:        image.Pt(0, 0),
+			Max:        image.Pt(10, 10),
+			RowHeight:  4,
+			Widths:     []int{5, 5, 5},
+			CurrentCol: 0,
+			ResultRows: 2,
+			ResultCols: 1,
+		},
+		{
+			Name:       "NormalUnevenCols",
+			Min:        image.Pt(0, 0),
+			Max:        image.Pt(10, 10),
+			RowHeight:  3,
+			Widths:     []int{2, 7, 3},
+			CurrentCol: 0,
+			ResultRows: 3,
+			ResultCols: 1,
+		},
+		{
+			Name:       "NormalUnevenColsForward",
+			Min:        image.Pt(0, 0),
+			Max:        image.Pt(10, 10),
+			RowHeight:  3,
+			Widths:     []int{2, 5, 1, 1},
+			CurrentCol: 1,
+			ResultRows: 3,
+			ResultCols: 2,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			r, c := computeBounds(test.Min, test.Max, test.RowHeight, test.Widths, test.CurrentCol)
+			assert.Equal(t, test.ResultRows, r, "Test that computeBounds returns the correct number of rows")
+			assert.Equal(t, test.ResultCols, c, "Test that computeBounds returns the correct number of columns")
 		})
 	}
 }
