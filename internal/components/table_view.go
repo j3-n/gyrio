@@ -3,7 +3,6 @@ package components
 import (
 	"errors"
 	"image"
-	"unicode/utf8"
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/j3-n/gyrio/internal/pkg/util"
@@ -58,7 +57,7 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 	}
 
 	// Draw column titles
-	drawRow(buf, t.TableBorderStyle, t.Inner.Min, t.Columns, widths, PositionTop)
+	drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min, t.Columns, widths, PositionTop)
 
 	// Draw rows
 	if len(t.Data) > 0 {
@@ -70,7 +69,7 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			default:
 				p = PositionMiddle
 			}
-			drawRow(buf, t.TableBorderStyle, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r, widths, p)
+			drawRow(buf, t.TableBorderStyle, t.TextAlignment, t.Inner.Min.Add(image.Pt(0, (2*i)+2)), r, widths, p)
 		}
 	} else {
 		// Table is empty, draw a small empty row
@@ -135,7 +134,7 @@ func drawHorizontalBorder(buf *ui.Buffer, style ui.Style, offset image.Point, wi
 // drawRow draws the given row to the buffer at the given offset with the specified column widths.
 // Each row draws the border above and beside itself, except one with PositionBottom which will draw its bottom border as well.
 // Position indicates whether the row is the first, middle or last row of the table.
-func drawRow(buf *ui.Buffer, style ui.Style, offset image.Point, row []string, widths []int, position Position) {
+func drawRow(buf *ui.Buffer, style ui.Style, align ui.Alignment, offset image.Point, row []string, widths []int, position Position) {
 	// Draw border above
 	switch position {
 	case PositionTop:
@@ -148,17 +147,23 @@ func drawRow(buf *ui.Buffer, style ui.Style, offset image.Point, row []string, w
 	buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, style), offset.Add(image.Pt(0, 1)))
 	i := 1
 	for j, w := range widths {
-		for k := range w {
-			if k < len(row[j]) {
-				// Draw text
-				r, _ := utf8.DecodeRune([]byte{row[j][k]})
-				buf.SetCell(ui.NewCell(r, style), offset.Add(image.Pt(i, 1)))
-			}
-			i += 1
+		// Calculate text beginning offset based on text alignment
+		var textOffset int
+		switch align {
+		case ui.AlignLeft:
+			textOffset = 0
+		case ui.AlignRight:
+			textOffset = w - len(row[j])
+		default:
+			textOffset = (w - len(row[j])) / 2
 		}
+		// Draw row text
+		for k, c := range row[j] {
+			buf.SetCell(ui.NewCell(c, style), offset.Add(image.Pt(i+textOffset+k, 1)))
+		}
+		i += w + 1
 		// Draw edge of columns
-		buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, style), offset.Add(image.Pt(i, 1)))
-		i += 1
+		buf.SetCell(ui.NewCell(ui.VERTICAL_LINE, style), offset.Add(image.Pt(i-1, 1)))
 	}
 
 	// Draw bottom border if needed
