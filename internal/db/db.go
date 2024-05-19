@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -69,7 +70,8 @@ func (d *DB) Tables() ([]string, error) {
 	}
 
 	var tables []string
-	err := d.db.Raw(cmd).Scan(&tables).Error
+	res := d.db.Raw(cmd).Scan(&tables)
+	err := res.Error
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +84,80 @@ func (d *DB) Tables() ([]string, error) {
 // Use the args if you would like a more specific query, for example (..., "id = ?", 1).
 func (d *DB) List(tbl string, args ...interface{}) ([]map[string]any, error) {
 	var data []map[string]any
-	err := d.db.Table(tbl).Find(&tbl, args...).Error
+	res := d.db.Table(tbl).Find(&data, args...)
+	err := res.Error
 	if err != nil {
 		return nil, err
 	}
 
 	return data, nil
+}
+
+// Read the first item that fits the given criteria into a map[string]any.
+// Also returns the error of the query.
+// Use the args to make a more specific query, for example (..., "id = ?", 1).
+func (d *DB) Read(tbl string, args ...interface{}) (map[string]any, error) {
+	var data map[string]any
+	res := d.db.Table(tbl).Find(&data, args...)
+	log.Println(data)
+	err := res.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// Create an item into the given table with the map[string]any.
+// Returns any errors that occur during saving.
+func (d *DB) Create(tbl string, obj map[string]any) error {
+	res := d.db.Table(tbl).Create(&obj)
+	err := res.Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Update an already existing item in the given table with the map[string]any.
+// Returns any errors that occur during updating.
+// The obj must have the primary key in order to update.
+func (d *DB) Update(tbl string, obj map[string]any, args ...interface{}) error {
+	res := d.db.Table(tbl).Save(&obj)
+	err := res.Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete items from the database using the map[string]any or with a given table and query.
+// Returns an error that occurs during deletion.
+// Use the args to make a more specific query, for example (..., "id = ?", 1).
+func (d *DB) Delete(tbl string, obj map[string]any, args ...interface{}) error {
+	res := d.db.Table(tbl).Delete(&obj, args...)
+	err := res.Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Check if an item exists within a given table, either using the map[string]any of obj or args.
+// Returns a boolean, if it exists, and any errors that occur.
+// Can use args, with something like (..., "id = ?", 1).
+func (d *DB) Contains(tbl string, obj map[string]any, args ...interface{}) (bool, error) {
+	var count int64
+	res := d.db.Table(tbl).Find(&obj, args...).Count(&count)
+	err := res.Error
+	if err != nil {
+		return false, err
+	}
+
+	return count == 0, err
 }
 
 // Closes a connection to the database instance.
