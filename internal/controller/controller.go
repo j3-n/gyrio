@@ -29,6 +29,12 @@ func (c *Controller) Start() {
 			}
 			// Redraw view
 			ui.Render(c.View.Render())
+		} else if e.Type == ui.ResizeEvent {
+			// Resize view
+			payload := e.Payload.(ui.Resize)
+			c.View.Resize(payload.Width, payload.Height)
+			ui.Clear()
+			ui.Render(c.View.Render())
 		}
 	}
 }

@@ -10,4 +10,6 @@ type View interface {
 	Render() *ui.Grid
 	// KeyboardEvent sends a keyboard event to the the view
 	KeyboardEvent(e *ui.Event)
+	// Resize should be called with the terminal dimensions whenever it is resized.
+	Resize(w int, height int)
 }

@@ -23,6 +23,13 @@ func (v *SingleScreenView) Render() *ui.Grid {
 	return v.screens[v.currentScreen]
 }
 
+// Resize resizes all screens
+func (v *SingleScreenView) Resize(w int, h int) {
+	for _, screen := range v.screens {
+		screen.SetRect(0, 0, w, h)
+	}
+}
+
 // KeyboardEvent handles keyboard inputs to this view. If it is not a control input
 // it will be forwarded to the active widget.
 func (v *SingleScreenView) KeyboardEvent(e *ui.Event) {
