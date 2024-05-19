@@ -7,7 +7,7 @@ type SingleScreenView struct {
 	// screens is the slice of screens this view has stored
 	screens []*ui.Grid
 	// currentScreen stores the index of the active screen which will be rendered
-	currentScreen uint
+	currentScreen int
 }
 
 // NewSingleScreenView creates a new view with the given set of available screens.
@@ -30,7 +30,7 @@ func (v *SingleScreenView) KeyboardEvent(e *ui.Event) {
 	case "<Left>":
 		v.currentScreen = max(0, v.currentScreen-1)
 	case "<Right>":
-		v.currentScreen = min(v.currentScreen+1, uint(len(v.screens)))
+		v.currentScreen = min(v.currentScreen+1, len(v.screens)-1)
 	default:
 		return
 	}

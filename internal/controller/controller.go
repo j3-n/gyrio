@@ -18,15 +18,17 @@ func (c *Controller) Start() {
 
 	events := ui.PollEvents()
 	for e := range events {
-		// Redraw view
-		ui.Render(c.View.Render())
 		// Handle UI event
 		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
 			case "<C-c>", "q":
 				// Quit
 				return
+			default:
+				c.View.KeyboardEvent(&e)
 			}
+			// Redraw view
+			ui.Render(c.View.Render())
 		}
 	}
 }

@@ -34,8 +34,15 @@ func main() {
 
 	grid.Set(ui.NewRow(1.0/2,
 		ui.NewCol(1.0/4, table),
+		ui.NewCol(1.0/4, table),
+		ui.NewCol(1.0/4, table),
+		ui.NewCol(1.0/4, table),
 	),
 	)
+
+	grid2 := ui.NewGrid()
+	grid2.SetRect(0, 0, w, h)
+	grid2.Set(ui.NewRow(1.0, ui.NewCol(1.0, table)))
 
 	// Create a quit signal
 	quit := make(chan os.Signal, 1)
@@ -45,6 +52,7 @@ func main() {
 	c := &controller.Controller{
 		View: view.NewSingleScreenView([]*ui.Grid{
 			grid,
+			grid2,
 		}),
 	}
 	c.Start()
