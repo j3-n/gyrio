@@ -7,7 +7,7 @@ import (
 // A View defines a layout that can be displayed in the terminal.
 type View interface {
 	// Render returns a Grid layout to be rendered to the screen.
-	Render() ui.Grid
+	Render() *ui.Grid
 	// KeyboardEvent sends a keyboard event to the the view
 	KeyboardEvent(e *ui.Event)
 }
