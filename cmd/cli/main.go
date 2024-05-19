@@ -2,9 +2,14 @@ package main
 
 import (
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/j3-n/gyrio/internal/components"
+	"github.com/j3-n/gyrio/internal/controller"
+	"github.com/j3-n/gyrio/internal/view"
 )
 
 func main() {
@@ -32,31 +37,15 @@ func main() {
 	),
 	)
 
-	ui.Render(grid)
+	// Create a quit signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
-	events := ui.PollEvents()
-	for {
-		e := <-events
-		switch e.ID {
-		case "q", "<C-c>":
-			return
-		case "<Resize>":
-			resize := e.Payload.(ui.Resize)
-			grid.SetRect(0, 0, resize.Width, resize.Height)
-			ui.Clear()
-			ui.Render(grid)
-		case "<Down>":
-			table.ScrollDown()
-			ui.Render(grid)
-		case "<Up>":
-			table.ScrollUp()
-			ui.Render(grid)
-		case "<Left>":
-			table.ScrollLeft()
-			ui.Render(grid)
-		case "<Right>":
-			table.ScrollRight()
-			ui.Render(grid)
-		}
+	// Create and start controller
+	c := &controller.Controller{
+		View: view.NewSingleScreenView([]*ui.Grid{
+			grid,
+		}),
 	}
+	c.Start()
 }

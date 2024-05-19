@@ -10,6 +10,14 @@ type SingleScreenView struct {
 	currentScreen uint
 }
 
+// NewSingleScreenView creates a new view with the given set of available screens.
+func NewSingleScreenView(screens []*ui.Grid) *SingleScreenView {
+	return &SingleScreenView{
+		screens:       screens,
+		currentScreen: 0,
+	}
+}
+
 // Render returns the currently active screen.
 func (v *SingleScreenView) Render() *ui.Grid {
 	return v.screens[v.currentScreen]
@@ -18,5 +26,12 @@ func (v *SingleScreenView) Render() *ui.Grid {
 // KeyboardEvent handles keyboard inputs to this view. If it is not a control input
 // it will be forwarded to the active widget.
 func (v *SingleScreenView) KeyboardEvent(e *ui.Event) {
-
+	switch e.ID {
+	case "<Left>":
+		v.currentScreen = max(0, v.currentScreen-1)
+	case "<Right>":
+		v.currentScreen = min(v.currentScreen+1, uint(len(v.screens)))
+	default:
+		return
+	}
 }
