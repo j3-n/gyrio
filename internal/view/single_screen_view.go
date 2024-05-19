@@ -34,10 +34,9 @@ func (v *SingleScreenView) Resize(w int, h int) {
 // it will be forwarded to the active widget.
 func (v *SingleScreenView) KeyboardEvent(e *ui.Event) {
 	switch e.ID {
-	case "<Left>":
-		v.currentScreen = max(0, v.currentScreen-1)
-	case "<Right>":
-		v.currentScreen = min(v.currentScreen+1, len(v.screens)-1)
+	case "<Tab>":
+		// Cycle along one screen layout
+		v.currentScreen = (v.currentScreen + 1) % len(v.screens)
 	default:
 		return
 	}
