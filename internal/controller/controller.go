@@ -2,6 +2,7 @@ package controller
 
 import (
 	ui "github.com/gizak/termui/v3"
+	"github.com/j3-n/gyrio/internal/components"
 	"github.com/j3-n/gyrio/internal/view"
 )
 
@@ -10,11 +11,13 @@ import (
 type Controller struct {
 	// View is the view rendered by this controller
 	View view.View
+	// Toolbar is the toolbar rendered under the view
+	Toolbar components.Toolbar
 }
 
 // Start begins the polling loop for the Controller.
 func (c *Controller) Start() {
-	ui.Render(c.View.Render())
+	c.Render()
 
 	events := ui.PollEvents()
 	for e := range events {
@@ -28,13 +31,25 @@ func (c *Controller) Start() {
 				c.View.KeyboardEvent(&e)
 			}
 			// Redraw view
-			ui.Render(c.View.Render())
+			c.Render()
 		} else if e.Type == ui.ResizeEvent {
 			// Resize view
 			payload := e.Payload.(ui.Resize)
 			c.View.Resize(payload.Width, payload.Height)
-			ui.Clear()
-			ui.Render(c.View.Render())
+			c.Render()
 		}
 	}
+}
+
+// Render handles the rendering of the complete UI to the screen through TermUI.
+func (c *Controller) Render() {
+	w, h := ui.TerminalDimensions()
+	view := c.View.Render()
+	view.SetRect(0, 0, w-1, h-2)
+
+	c.Toolbar.SetRect(1, h-2, w-1, h-1)
+	c.Toolbar.Elements = c.View.GetToolbar()
+	ui.Clear()
+	ui.Render(view)
+	ui.Render(&c.Toolbar)
 }

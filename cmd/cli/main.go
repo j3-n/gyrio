@@ -54,6 +54,7 @@ func main() {
 			grid,
 			grid2,
 		}),
+		Toolbar: *components.NewToolbar(),
 	}
 	c.Start()
 }
