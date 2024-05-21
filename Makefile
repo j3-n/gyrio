@@ -11,8 +11,8 @@ all:
 ifeq ($(v),1)
 BUILD_FLAGS = -v
 endif
-build:
-	@$(GO) build $(BUILD_FLAGS) -o build/program/app cmd/cli/main.go
+build: clean
+	@$(GO) build $(BUILD_FLAGS) -o build/program/gyrio cmd/cli/main.go
 
 .phony: clean
 clean:
