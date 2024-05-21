@@ -333,6 +333,271 @@ func TestDBCreate(t *testing.T) {
 	}
 }
 
+func TestDBUpdate(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Data      map[string]any
+		Update    map[string]any
+		Where     []interface{}
+		Before    func(db *DB) error
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, invalid entries",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"key": "key"},
+			Update:    map[string]any{"id": int64(1), "key": "key"},
+			Where:     []interface{}{"id = ?", 1},
+			Before:    before,
+			Fails:     true,
+		},
+		{
+			Name:      "sqlite db, one valid entry",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Update:    map[string]any{"id": int64(1), "value": "new value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 1},
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, one valid entry, invalid where length",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Update:    map[string]any{"id": int64(1), "value": "new value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?"},
+			Fails:     true,
+		},
+		{
+			Name:      "sqlite db, one valid entry, invalid where type",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Update:    map[string]any{"id": int64(1), "value": "new value"},
+			Before:    before,
+			Where:     []interface{}{1, 1},
+			Fails:     true,
+		},
+		{
+			Name:      "sqlite db, one valid entry, with id",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"id": int64(1), "value": "value"},
+			Update:    map[string]any{"id": int64(1), "value": "new value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 1},
+			Fails:     false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			_ = db.Create(test.Table, test.Data)
+
+			err = db.Update(test.Table, test.Update, test.Where...)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+
+			data, _ := db.Read(test.Table, test.Where...)
+
+			assert.Equal(t, test.Update, data)
+		})
+	}
+}
+
+func TestDBDelete(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Data      map[string]any
+		Where     []interface{}
+		Before    func(db *DB) error
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, one valid entry",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 1},
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, one valid entry, invalid where length",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?"},
+			Fails:     true,
+		},
+		{
+			Name:      "sqlite db, one valid entry, invalid where type",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"value": "value"},
+			Before:    before,
+			Where:     []interface{}{1, 1},
+			Fails:     true,
+		},
+		{
+			Name:      "sqlite db, one valid entry, with id",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"id": int64(1), "value": "value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 1},
+			Fails:     false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			_ = db.Create(test.Table, test.Data)
+
+			err = db.Delete(test.Table, test.Data, test.Where...)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+
+			data, _ := db.List("mocks")
+			assert.Equal(t, 0, len(data))
+		})
+	}
+}
+
+func TestDBContains(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Data      map[string]any
+		Before    func(db *DB) error
+		Where     []interface{}
+		Exists    bool
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, one valid entry, exists",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"id": int64(1), "value": "value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 1},
+			Exists:    true,
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, one valid entry, doesn't exist",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"id": int64(1), "value": "value"},
+			Before:    before,
+			Where:     []interface{}{"id = ?", 2},
+			Exists:    false,
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, one valid entry, bad field",
+			Connector: SQLiteConn,
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Data:      map[string]any{"id": int64(1), "value": "value"},
+			Before:    before,
+			Where:     []interface{}{"nil = ?", 2},
+			Exists:    false,
+			Fails:     true,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			_ = db.Create(test.Table, test.Data)
+
+			contains, err := db.Contains(test.Table, test.Data, test.Where...)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+
+			assert.Equal(t, test.Exists, contains)
+		})
+	}
+}
+
 func TestDBClose(t *testing.T) {
 	db, err := SQLiteConn.Conn(":memory:")
 	assert.NoError(t, err)

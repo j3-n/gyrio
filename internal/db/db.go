@@ -122,9 +122,20 @@ func (d *DB) Create(tbl string, obj map[string]any) error {
 
 // Update an already existing item in the given table with the map[string]any.
 // Returns any errors that occur during updating.
-// The obj must have the primary key in order to update.
+// The obj updates data in the table based on the arguments given.
+// Please use args such that they are where "id = ?", 1 for example.
+// An error will be returned if incorrect arguments are given.
 func (d *DB) Update(tbl string, obj map[string]any, args ...interface{}) error {
-	res := d.db.Table(tbl).Save(&obj)
+	if len(args) < 2 {
+		return errors.New("error, bad arguments given")
+	}
+
+	whr, ok := args[0].(string)
+	if !ok {
+		return errors.New("error, bad where clause given")
+	}
+
+	res := d.db.Table(tbl).Where(whr, args[1:]).Updates(obj)
 	err := res.Error
 	if err != nil {
 		return err
@@ -135,9 +146,19 @@ func (d *DB) Update(tbl string, obj map[string]any, args ...interface{}) error {
 
 // Delete items from the database using the map[string]any or with a given table and query.
 // Returns an error that occurs during deletion.
-// Use the args to make a more specific query, for example (..., "id = ?", 1).
+// Please use args such that they are where "id = ?", 1 for example.
+// An error will be returned if incorrect arguments are given.
 func (d *DB) Delete(tbl string, obj map[string]any, args ...interface{}) error {
-	res := d.db.Table(tbl).Delete(&obj, args...)
+	if len(args) < 2 {
+		return errors.New("error, bad arguments given")
+	}
+
+	whr, ok := args[0].(string)
+	if !ok {
+		return errors.New("error, bad where clause given")
+	}
+
+	res := d.db.Table(tbl).Where(whr, args[1:]).Delete(obj)
 	err := res.Error
 	if err != nil {
 		return err
@@ -157,7 +178,7 @@ func (d *DB) Contains(tbl string, obj map[string]any, args ...interface{}) (bool
 		return false, err
 	}
 
-	return count == 0, err
+	return count != 0, err
 }
 
 // Closes a connection to the database instance.
