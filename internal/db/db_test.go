@@ -258,7 +258,7 @@ func TestDBRead(t *testing.T) {
 	}
 }
 
-func TestDBCreate(t *testing.T) {
+func TestDBAdd(t *testing.T) {
 	before := func(db *DB) error {
 		err := db.DB().Migrator().CreateTable(&Mock{})
 		if err != nil {
@@ -322,7 +322,7 @@ func TestDBCreate(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			err = db.Create(test.Table, test.Data)
+			err = db.Add(test.Table, test.Data)
 			if test.Fails {
 				assert.Error(t, err, "failed to execute query")
 				return
@@ -418,7 +418,7 @@ func TestDBUpdate(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			err = db.Update(test.Table, test.Update, test.Where...)
 			if test.Fails {
@@ -504,7 +504,7 @@ func TestDBDelete(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			err = db.Delete(test.Table, test.Data, test.Where...)
 			if test.Fails {
@@ -583,7 +583,7 @@ func TestDBContains(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			contains, err := db.Contains(test.Table, test.Data, test.Where...)
 			if test.Fails {
@@ -594,6 +594,150 @@ func TestDBContains(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, test.Exists, contains)
+		})
+	}
+}
+
+func TestDBCreate(t *testing.T) {
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Address   []interface{}
+		Table     string
+		Obj       any
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, doesn't error",
+			Connector: New(SQLite),
+			Address:   []interface{}{":memory:"},
+			Table:     "mocks",
+			Obj:       Mock{},
+			Fails:     false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+
+			err = db.Create(test.Table, test.Obj)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestDBDrop(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Before    func(db *DB) error
+		Drop      string
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, doesn't error",
+			Connector: New(SQLite),
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, errors",
+			Connector: New(SQLite),
+			Table:     "tables",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Fails:     true,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			err = db.Drop(test.Table)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestDBExists(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Before    func(db *DB) error
+		Exists    bool
+	}{
+		{
+			Name:      "sqlite db, exists",
+			Connector: New(SQLite),
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Exists:    true,
+		},
+		{
+			Name:      "sqlite db, doesn't exist",
+			Connector: New(SQLite),
+			Table:     "invalid",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Exists:    false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			exists := db.Exists(test.Table)
+			if test.Exists {
+				assert.True(t, exists)
+				return
+			}
+
+			assert.False(t, exists)
 		})
 	}
 }

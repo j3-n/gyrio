@@ -113,9 +113,9 @@ func (d *DB) Read(tbl string, args ...interface{}) (map[string]any, error) {
 	return data, nil
 }
 
-// Create an item into the given table with the map[string]any.
+// Add an item into the given table with the map[string]any.
 // Returns any errors that occur during saving.
-func (d *DB) Create(tbl string, obj map[string]any) error {
+func (d *DB) Add(tbl string, obj map[string]any) error {
 	res := d.db.Table(tbl).Create(&obj)
 	err := res.Error
 	if err != nil {
@@ -184,6 +184,39 @@ func (d *DB) Contains(tbl string, obj map[string]any, args ...interface{}) (bool
 	}
 
 	return count != 0, err
+}
+
+// Create a table of the given name of a given object.
+// Returns an error if the migrator fails to create the table.
+func (d *DB) Create(tbl string, obj interface{}) error {
+	err := d.db.Table(tbl).Migrator().CreateTable(&obj)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Drops the given table name, if it fails will return an error.
+// An error will also be returned if the table does not exist.
+func (d *DB) Drop(tbl string) error {
+	e := d.db.Migrator().HasTable(tbl)
+	if !e {
+		return errors.New("error, table does not exist")
+	}
+
+	err := d.db.Migrator().DropTable(tbl)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Checks if a given table exists.
+func (d *DB) Exists(tbl string) bool {
+	val := d.db.Migrator().HasTable(tbl)
+	return val
 }
 
 // Closes a connection to the database instance.
