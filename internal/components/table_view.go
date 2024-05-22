@@ -13,10 +13,10 @@ var ErrColumnCountMismatch = errors.New("number of columns in each row must be c
 // Positions describe whether a border is on top, middle or bottom of its box
 type Position int
 
-var (
-	PositionTop    Position = 0
-	PositionMiddle Position = 1
-	PositionBottom Position = 2
+const (
+	PositionTop Position = iota
+	PositionMiddle
+	PositionBottom
 )
 
 // TableView is a termui component for drawing tables.
