@@ -96,11 +96,11 @@ func (t *TableView) Draw(buf *ui.Buffer) {
 			width := util.Sum(croppedWidths) + len(croppedWidths)
 			buf.SetCell(ui.NewCell(ui.HORIZONTAL_DOWN, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, 0)))
 			for i := range len(croppedRows) {
-				buf.SetCell(ui.NewCell('┼', t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, i*2+2)))
+				buf.SetCell(ui.NewCell(util.CROSS, t.TableBorderStyle), t.Inner.Min.Add(image.Pt(width, i*2+2)))
 			}
 			var r rune
 			if t.scrollY+len(croppedRows) < len(t.Data) {
-				r = '┼'
+				r = util.CROSS
 			} else {
 				r = ui.HORIZONTAL_UP
 			}
@@ -139,7 +139,7 @@ func drawEmptyRow(buf *ui.Buffer, style ui.Style, widths []int, origin image.Poi
 func drawScrollArrows(buf *ui.Buffer, style ui.Style, scroll image.Point, max image.Point, data image.Point, bounds image.Rectangle) {
 	if scroll.X > 0 {
 		// Left scroll arrow
-		buf.SetCell(ui.NewCell('◄', style), image.Pt(1, bounds.Dy()/2))
+		buf.SetCell(ui.NewCell(util.LEFT_ARROW, style), image.Pt(1, bounds.Dy()/2))
 	}
 	if scroll.Y > 0 {
 		// Top scroll arrow
@@ -147,7 +147,7 @@ func drawScrollArrows(buf *ui.Buffer, style ui.Style, scroll image.Point, max im
 	}
 	if scroll.X+max.X < data.X {
 		// Right scroll arrow
-		buf.SetCell(ui.NewCell('►', style), bounds.Max.Sub(image.Pt(1, bounds.Dy()/2+1)))
+		buf.SetCell(ui.NewCell(util.RIGHT_ARROW, style), bounds.Max.Sub(image.Pt(1, bounds.Dy()/2+1)))
 	}
 	if scroll.Y+max.Y < data.Y {
 		// Bottom scroll arrow
@@ -167,7 +167,7 @@ func drawHorizontalBorder(buf *ui.Buffer, style ui.Style, offset image.Point, wi
 		l = ui.BOTTOM_RIGHT
 	case PositionMiddle:
 		f = ui.VERTICAL_RIGHT
-		m = '┼'
+		m = util.CROSS
 		l = ui.VERTICAL_LEFT
 	default:
 		f = ui.TOP_LEFT
