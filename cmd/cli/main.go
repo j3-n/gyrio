@@ -50,11 +50,10 @@ func main() {
 
 	// Create and start controller
 	c := &controller.Controller{
-		View: view.NewSingleScreenView([]*ui.Grid{
+		View: view.NewApplicationView([]*ui.Grid{
 			grid,
 			grid2,
 		}),
-		Toolbar: *components.NewToolbar(),
 	}
 	c.Start()
 }

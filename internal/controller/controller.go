@@ -17,6 +17,10 @@ type Controller struct {
 
 // Start begins the polling loop for the Controller.
 func (c *Controller) Start() {
+	// Set initial view size
+	w, h := ui.TerminalDimensions()
+	c.View.SetRect(0, 0, w, h)
+
 	c.Render()
 
 	events := ui.PollEvents()
@@ -43,5 +47,6 @@ func (c *Controller) Start() {
 
 // Render handles the rendering of the complete UI to the screen through TermUI.
 func (c *Controller) Render() {
+	ui.Clear()
 	ui.Render(c.View)
 }
