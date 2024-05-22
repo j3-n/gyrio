@@ -36,6 +36,7 @@ func (l *Layout) NavX(x int) {
 func (l *Layout) NavY(y int) {
 	if len(l.NavLayout) > 0 {
 		l.row = util.Mod(l.row+y, len(l.NavLayout))
+		l.col = min(len(l.NavLayout[l.row])-1, l.col)
 	}
 }
 

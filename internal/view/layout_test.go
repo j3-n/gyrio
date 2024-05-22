@@ -8,12 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNavigation(t *testing.T) {
+func TestNavLayout(t *testing.T) {
 	layout := Layout{
 		NavLayout: [][]components.Interactable{
 			{}, // 0
 			{components.NewInput(), components.NewInput()}, // 2
 			{components.NewInput()},                        // 1
+			{components.NewInput(), components.NewInput(), components.NewInput(), components.NewInput()}, // 4
 		},
 	}
 
@@ -24,9 +25,18 @@ func TestNavigation(t *testing.T) {
 	layout.NavX(-1)
 	assert.Equal(t, 0, layout.col)
 	layout.NavY(-1)
-	assert.Equal(t, 2, layout.row, "Test that vertical wrapping works correctly")
+	assert.Equal(t, 3, layout.row, "Test that vertical wrapping works correctly")
 	layout.NavY(2)
 	assert.Equal(t, 1, layout.row)
+	layout.NavX(1)
+	assert.Equal(t, 1, layout.col)
+	layout.NavX(1)
+	assert.Equal(t, 0, layout.col)
+	layout.NavY(2)
+	layout.NavX(3)
+	assert.Equal(t, 3, layout.col)
+	layout.NavY(-1)
+	assert.Equal(t, 0, layout.col)
 }
 
 func TestLayout(t *testing.T) {
