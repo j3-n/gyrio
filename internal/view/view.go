@@ -56,7 +56,21 @@ func initAppView() {
 	grid2.SetRect(0, 0, w, h)
 	grid2.Set(ui.NewRow(1.0, ui.NewCol(1.0, table)))
 
+	input := components.NewInput()
+	input.Title = "Input Box"
+	input.Border = true
+	grid3 := ui.NewGrid()
+	grid3.SetRect(0, 0, w, h)
+	grid3.Set(
+		ui.NewRow(1.0/1.5,
+			ui.NewCol(1.0, table),
+		),
+		ui.NewRow(1.0/3,
+			ui.NewCol(1.0, input),
+		),
+	)
+
 	AppView = NewApplicationView([]*ui.Grid{
-		grid, grid2,
+		grid3,
 	})
 }
