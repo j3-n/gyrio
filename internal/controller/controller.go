@@ -35,7 +35,7 @@ func (c *Controller) Start() {
 		} else if e.Type == ui.ResizeEvent {
 			// Resize view
 			payload := e.Payload.(ui.Resize)
-			c.View.Resize(payload.Width, payload.Height)
+			c.View.SetRect(0, 0, payload.Width, payload.Height)
 			c.Render()
 		}
 	}
@@ -43,13 +43,5 @@ func (c *Controller) Start() {
 
 // Render handles the rendering of the complete UI to the screen through TermUI.
 func (c *Controller) Render() {
-	w, h := ui.TerminalDimensions()
-	view := c.View.Render()
-	view.SetRect(0, 0, w-1, h-2)
-
-	c.Toolbar.SetRect(1, h-2, w-1, h-1)
-	c.Toolbar.Elements = c.View.GetToolbar()
-	ui.Clear()
-	ui.Render(view)
-	ui.Render(&c.Toolbar)
+	ui.Render(c.View)
 }
