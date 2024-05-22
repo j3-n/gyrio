@@ -7,12 +7,17 @@ import (
 	ui "github.com/gizak/termui/v3"
 )
 
+type Interactable interface {
+	KeyboardEvent(*ui.Event)
+}
+
 type Input struct {
 	ui.Block
 
-	DefaultText string
 	CurrentText string
 	CharLimit   uint
+
+	cursorPos int
 }
 
 // NewInput initialises and returns a new Input component.

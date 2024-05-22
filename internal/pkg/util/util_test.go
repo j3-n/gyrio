@@ -46,3 +46,43 @@ func TestSum(t *testing.T) {
 		})
 	}
 }
+
+func TestMod(t *testing.T) {
+	testCases := []struct {
+		Name   string
+		A      int
+		B      int
+		Result int
+	}{
+		{
+			Name:   "Normal",
+			A:      5,
+			B:      10,
+			Result: 5,
+		},
+		{
+			Name:   "Boundary",
+			A:      5,
+			B:      5,
+			Result: 0,
+		},
+		{
+			Name:   "Zero",
+			A:      0,
+			B:      5,
+			Result: 0,
+		},
+		{
+			Name:   "Negative",
+			A:      -1,
+			B:      3,
+			Result: 2,
+		},
+	}
+
+	for _, test := range testCases {
+		t.Run(test.Name, func(t *testing.T) {
+			assert.Equal(t, test.Result, Mod(test.A, test.B), "Test that mod returns the expected result")
+		})
+	}
+}
