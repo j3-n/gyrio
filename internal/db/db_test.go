@@ -42,14 +42,14 @@ func TestDBTables(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no tables",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Address:   []interface{}{":memory:"},
 			Tables:    0,
 			Fails:     false,
 		},
 		{
 			Name:      "empty conn, no tables",
-			Connector: EmptyConn,
+			Connector: New(Empty),
 			Address:   []interface{}{},
 			Tables:    0,
 			Fails:     true,
@@ -85,7 +85,7 @@ func TestDBList(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -100,7 +100,7 @@ func TestDBList(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      []map[string]any{{"id": int64(1), "value": "hello"}},
@@ -119,7 +119,7 @@ func TestDBList(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, many entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      []map[string]any{{"id": int64(1), "value": "hello"}, {"id": int64(2), "value": "hello"}},
@@ -173,7 +173,7 @@ func TestDBRead(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "table",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -182,7 +182,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -197,7 +197,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one read with one entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "hello"},
@@ -216,7 +216,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one read with many entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "hello"},
@@ -279,7 +279,7 @@ func TestDBCreate(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{},
@@ -288,7 +288,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, invalid entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"key": "key"},
@@ -297,7 +297,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -306,7 +306,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": 1, "value": "value"},
@@ -356,7 +356,7 @@ func TestDBUpdate(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, invalid entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"key": "key"},
@@ -367,7 +367,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -378,7 +378,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where length",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -389,7 +389,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where type",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -400,7 +400,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -457,7 +457,7 @@ func TestDBDelete(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -467,7 +467,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where length",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -477,7 +477,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where type",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -487,7 +487,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -543,7 +543,7 @@ func TestDBContains(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, one valid entry, exists",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -554,7 +554,7 @@ func TestDBContains(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, doesn't exist",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -565,7 +565,7 @@ func TestDBContains(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, bad field",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},

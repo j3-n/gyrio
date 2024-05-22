@@ -54,15 +54,20 @@ func (d *DB) DBType() DBType {
 // Will use different queries based on the Database type, like PG, SQLite, etc.
 func (d *DB) Tables() ([]string, error) {
 	cmd := func() string {
-		if d.dbType == SQLite {
+		switch d.dbType {
+		case SQLite:
 			return "SELECT name FROM sqlite_master WHERE type='table'"
-		} else if d.dbType == Postgres {
+
+		case Postgres:
 			return "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"
-		} else if d.dbType == MySQL {
+
+		case MySQL:
+			// TODO:
+			return ""
+
+		default:
 			return ""
 		}
-
-		return ""
 	}()
 
 	if cmd == "" {
