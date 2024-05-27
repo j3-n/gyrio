@@ -34,7 +34,8 @@ type TableView struct {
 	// Style to use for column borders
 	TableBorderStyle ui.Style
 
-	scrollX, scrollY int
+	scrollX, scrollY    int
+	isHovered, isActive bool
 }
 
 // NewTableView initialises and returns a new empty TableView widget.
@@ -312,5 +313,26 @@ func (t *TableView) KeyboardEvent(e *ui.Event) {
 		t.ScrollUp()
 	case "<Down>":
 		t.ScrollDown()
+	}
+}
+
+// TODO: refactor these out somehow
+func (t *TableView) SetActive(active bool) {
+	t.isActive = active
+	t.UpdateBorderStyle()
+}
+
+func (t *TableView) SetHovered(hovered bool) {
+	t.isHovered = hovered
+	t.UpdateBorderStyle()
+}
+
+func (t *TableView) UpdateBorderStyle() {
+	if t.isActive {
+		t.Block.BorderStyle = util.STYLE_SELECTED
+	} else if t.isHovered {
+		t.Block.BorderStyle = util.STYLE_HOVER
+	} else {
+		t.Block.BorderStyle = util.STYLE_UNSELECTED
 	}
 }

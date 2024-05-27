@@ -29,7 +29,9 @@ func (l *Layout) Draw(buf *ui.Buffer) {
 func (l *Layout) NavX(x int) {
 	if len(l.NavLayout) > 0 {
 		if len(l.NavLayout[l.row]) > 0 {
+			l.NavLayout[l.row][l.col].SetHovered(false)
 			l.col = util.Mod(l.col+x, len(l.NavLayout[l.row]))
+			l.NavLayout[l.row][l.col].SetHovered(true)
 		}
 	}
 }
@@ -37,14 +39,19 @@ func (l *Layout) NavX(x int) {
 // Navigate down (+) or up (-) y spaces
 func (l *Layout) NavY(y int) {
 	if len(l.NavLayout) > 0 {
+		if len(l.NavLayout[l.row]) > l.col {
+			l.NavLayout[l.row][l.col].SetHovered(false)
+		}
 		l.row = util.Mod(l.row+y, len(l.NavLayout))
 		l.col = min(len(l.NavLayout[l.row])-1, l.col)
+		l.NavLayout[l.row][l.col].SetHovered(true)
 	}
 }
 
 // Toggle interact mode
 func (l *Layout) ToggleInteract() {
 	l.interactMode = !l.interactMode
+	l.NavLayout[l.row][l.col].SetActive(l.interactMode)
 }
 
 func (l *Layout) KeyboardEvent(e *ui.Event) {

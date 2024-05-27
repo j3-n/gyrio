@@ -57,7 +57,7 @@ func initAppView() {
 	grid2.Set(ui.NewRow(1.0, ui.NewCol(1.0, table)))
 
 	input := components.NewInput()
-	input.Title = "Input Box"
+	input.Title = "Query"
 	input.Border = true
 	grid3 := ui.NewGrid()
 	grid3.SetRect(0, 0, w, h)
