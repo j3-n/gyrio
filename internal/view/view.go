@@ -73,6 +73,10 @@ func initAppView() {
 	AppView = NewApplicationView([]*Layout{
 		{
 			Grid: grid3,
+			NavLayout: [][]components.Interactable{
+				{table},
+				{input},
+			},
 		},
 	})
 }

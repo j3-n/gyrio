@@ -301,3 +301,16 @@ func (t *TableView) ScrollLeft() {
 func (t *TableView) ScrollRight() {
 	t.scrollX = max(0, min(t.scrollX+1, len(t.Columns)-1))
 }
+
+func (t *TableView) KeyboardEvent(e *ui.Event) {
+	switch e.ID {
+	case "<Left>":
+		t.ScrollLeft()
+	case "<Right>":
+		t.ScrollRight()
+	case "<Up>":
+		t.ScrollUp()
+	case "<Down>":
+		t.ScrollDown()
+	}
+}
