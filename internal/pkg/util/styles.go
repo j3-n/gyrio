@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	STYLE_SELECTED   = ui.NewStyle(ui.ColorWhite, ui.ColorClear, ui.ModifierBold)
-	STYLE_UNSELECTED = ui.NewStyle(8) // grey
+	STYLE_SELECTED   = ui.NewStyle(46) // Green1
+	STYLE_UNSELECTED = ui.NewStyle(8)  // Grey
 	STYLE_HOVER      = ui.NewStyle(ui.ColorWhite)
 )

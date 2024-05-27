@@ -25,6 +25,27 @@ func (l *Layout) Draw(buf *ui.Buffer) {
 	l.Grid.Draw(buf)
 }
 
+func NewLayout(grid *ui.Grid, layout [][]components.Interactable) *Layout {
+	l := &Layout{
+		Grid:      grid,
+		NavLayout: layout,
+	}
+
+	// Initialise layout styling
+	for i, r := range layout {
+		for j, c := range r {
+			c.SetActive(false)
+			if i == 0 && j == 0 {
+				c.SetHovered(true)
+			} else {
+				c.SetHovered(false)
+			}
+		}
+	}
+
+	return l
+}
+
 // Navigate right (+) or left (-) x spaces
 func (l *Layout) NavX(x int) {
 	if len(l.NavLayout) > 0 {
