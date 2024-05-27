@@ -39,7 +39,7 @@ func TestNavLayout(t *testing.T) {
 	assert.Equal(t, 0, layout.col)
 }
 
-func TestLayout(t *testing.T) {
+func TestEmptyLayout(t *testing.T) {
 	grid := ui.NewGrid()
 	input := components.NewInput()
 	grid.Set(ui.NewRow(1.0, ui.NewCol(1.0, input)))
@@ -50,4 +50,9 @@ func TestLayout(t *testing.T) {
 	}
 	// Test that this does not create a runtime error since layout has no nav components
 	layout.KeyboardEvent(&ui.Event{})
+
+	layout = Layout{
+		Grid: grid,
+	}
+	layout.NavX(1)
 }

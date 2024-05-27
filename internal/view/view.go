@@ -70,7 +70,9 @@ func initAppView() {
 		),
 	)
 
-	AppView = NewApplicationView([]*ui.Grid{
-		grid3,
+	AppView = NewApplicationView([]*Layout{
+		{
+			Grid: grid3,
+		},
 	})
 }

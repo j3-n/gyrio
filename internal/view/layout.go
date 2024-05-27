@@ -27,8 +27,10 @@ func (l *Layout) Draw(buf *ui.Buffer) {
 
 // Navigate right (+) or left (-) x spaces
 func (l *Layout) NavX(x int) {
-	if len(l.NavLayout[l.row]) > 0 {
-		l.col = util.Mod(l.col+x, len(l.NavLayout[l.row]))
+	if len(l.NavLayout) > 0 {
+		if len(l.NavLayout[l.row]) > 0 {
+			l.col = util.Mod(l.col+x, len(l.NavLayout[l.row]))
+		}
 	}
 }
 

@@ -11,15 +11,15 @@ import (
 type ApplicationView struct {
 	rect image.Rectangle
 	// screens is the slice of screens this view has stored
-	screens []*ui.Grid
+	screens []*Layout
 	// currentScreen stores the index of the active screen which will be rendered
 	currentScreen int
 
 	sync.Mutex
 }
 
-// NewApplicationView creates a new view with the given set of available screens.
-func NewApplicationView(screens []*ui.Grid) *ApplicationView {
+// NewApplicationView creates a new view with the given set of available screen layouts.
+func NewApplicationView(screens []*Layout) *ApplicationView {
 	// Initialise toolbar component
 	return &ApplicationView{
 		screens:       screens,
@@ -46,11 +46,11 @@ func (v *ApplicationView) Draw(buf *ui.Buffer) {
 // KeyboardEvent handles keyboard inputs to this view. If it is not a control input
 // it will be forwarded to the active widget.
 func (v *ApplicationView) KeyboardEvent(e *ui.Event) {
-	switch e.ID {
-	case "<Tab>":
+	if e.ID == "<Tab>" {
 		// Cycle along one screen layout
 		v.currentScreen = (v.currentScreen + 1) % len(v.screens)
-	default:
-		return
+	} else {
+		// Pass down to current layout
+		v.screens[v.currentScreen].KeyboardEvent(e)
 	}
 }
