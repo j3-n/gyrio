@@ -95,11 +95,18 @@ func (i *Input) Draw(buf *ui.Buffer) {
 	i.Block.Draw(buf)
 
 	// Render text
-	// TODO: text wrapping
-	buf.SetString(i.CurrentText, ui.NewStyle(ui.ColorWhite), i.Block.Inner.Min.Add(image.Pt(1, 0)))
+	body := util.WrapString(i.CurrentText, i.Block.Inner.Dx()-1)
+	for j, str := range strings.Split(body, "\n") {
+		if j >= i.Block.Inner.Max.Y {
+			break
+		}
+		buf.SetString(str, ui.NewStyle(ui.ColorWhite), i.Block.Inner.Min.Add(image.Pt(1, j)))
+	}
 	// Render cursor
 	if i.isActive {
-		p := i.Block.Inner.Min.Add(image.Pt(i.cursorPos+1, 0))
+		row := i.cursorPos / (i.Block.Inner.Dx() - 1)
+		col := i.cursorPos % (i.Block.Inner.Dx() - 1)
+		p := i.Block.Inner.Min.Add(image.Pt(col+1, row))
 		r := buf.GetCell(p).Rune
 		buf.SetCell(ui.NewCell(r, util.STYLE_CURSOR), p)
 	}
