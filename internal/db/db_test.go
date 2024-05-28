@@ -42,14 +42,14 @@ func TestDBTables(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no tables",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Address:   []interface{}{":memory:"},
 			Tables:    0,
 			Fails:     false,
 		},
 		{
 			Name:      "empty conn, no tables",
-			Connector: EmptyConn,
+			Connector: New(Empty),
 			Address:   []interface{}{},
 			Tables:    0,
 			Fails:     true,
@@ -85,7 +85,7 @@ func TestDBList(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -100,7 +100,7 @@ func TestDBList(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      []map[string]any{{"id": int64(1), "value": "hello"}},
@@ -119,7 +119,7 @@ func TestDBList(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, many entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      []map[string]any{{"id": int64(1), "value": "hello"}, {"id": int64(2), "value": "hello"}},
@@ -173,7 +173,7 @@ func TestDBRead(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "table",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -182,7 +182,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      nil,
@@ -197,7 +197,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one read with one entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "hello"},
@@ -216,7 +216,7 @@ func TestDBRead(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one read with many entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "hello"},
@@ -258,7 +258,7 @@ func TestDBRead(t *testing.T) {
 	}
 }
 
-func TestDBCreate(t *testing.T) {
+func TestDBAdd(t *testing.T) {
 	before := func(db *DB) error {
 		err := db.DB().Migrator().CreateTable(&Mock{})
 		if err != nil {
@@ -279,7 +279,7 @@ func TestDBCreate(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, no entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{},
@@ -288,7 +288,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, invalid entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"key": "key"},
@@ -297,7 +297,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -306,7 +306,7 @@ func TestDBCreate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": 1, "value": "value"},
@@ -322,7 +322,7 @@ func TestDBCreate(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			err = db.Create(test.Table, test.Data)
+			err = db.Add(test.Table, test.Data)
 			if test.Fails {
 				assert.Error(t, err, "failed to execute query")
 				return
@@ -356,7 +356,7 @@ func TestDBUpdate(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, invalid entries",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"key": "key"},
@@ -367,7 +367,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -378,7 +378,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where length",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -389,7 +389,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where type",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -400,7 +400,7 @@ func TestDBUpdate(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -418,7 +418,7 @@ func TestDBUpdate(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			err = db.Update(test.Table, test.Update, test.Where...)
 			if test.Fails {
@@ -457,7 +457,7 @@ func TestDBDelete(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, one valid entry",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -467,7 +467,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where length",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -477,7 +477,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, invalid where type",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"value": "value"},
@@ -487,7 +487,7 @@ func TestDBDelete(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, with id",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -504,7 +504,7 @@ func TestDBDelete(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			err = db.Delete(test.Table, test.Data, test.Where...)
 			if test.Fails {
@@ -543,7 +543,7 @@ func TestDBContains(t *testing.T) {
 	}{
 		{
 			Name:      "sqlite db, one valid entry, exists",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -554,7 +554,7 @@ func TestDBContains(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, doesn't exist",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -565,7 +565,7 @@ func TestDBContains(t *testing.T) {
 		},
 		{
 			Name:      "sqlite db, one valid entry, bad field",
-			Connector: SQLiteConn,
+			Connector: New(SQLite),
 			Table:     "mocks",
 			Address:   []interface{}{":memory:"},
 			Data:      map[string]any{"id": int64(1), "value": "value"},
@@ -583,7 +583,7 @@ func TestDBContains(t *testing.T) {
 			err = test.Before(db)
 			assert.NoError(t, err)
 
-			_ = db.Create(test.Table, test.Data)
+			_ = db.Add(test.Table, test.Data)
 
 			contains, err := db.Contains(test.Table, test.Data, test.Where...)
 			if test.Fails {
@@ -594,6 +594,150 @@ func TestDBContains(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, test.Exists, contains)
+		})
+	}
+}
+
+func TestDBCreate(t *testing.T) {
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Address   []interface{}
+		Table     string
+		Obj       any
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, doesn't error",
+			Connector: New(SQLite),
+			Address:   []interface{}{":memory:"},
+			Table:     "mocks",
+			Obj:       Mock{},
+			Fails:     false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+
+			err = db.Create(test.Table, test.Obj)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestDBDrop(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Before    func(db *DB) error
+		Drop      string
+		Fails     bool
+	}{
+		{
+			Name:      "sqlite db, doesn't error",
+			Connector: New(SQLite),
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Fails:     false,
+		},
+		{
+			Name:      "sqlite db, errors",
+			Connector: New(SQLite),
+			Table:     "tables",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Fails:     true,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			err = db.Drop(test.Table)
+			if test.Fails {
+				assert.Error(t, err, "failed to execute query")
+				return
+			}
+
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestDBExists(t *testing.T) {
+	before := func(db *DB) error {
+		err := db.DB().Migrator().CreateTable(&Mock{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	testData := []struct {
+		Name      string
+		Connector Connector
+		Table     string
+		Address   []interface{}
+		Before    func(db *DB) error
+		Exists    bool
+	}{
+		{
+			Name:      "sqlite db, exists",
+			Connector: New(SQLite),
+			Table:     "mocks",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Exists:    true,
+		},
+		{
+			Name:      "sqlite db, doesn't exist",
+			Connector: New(SQLite),
+			Table:     "invalid",
+			Address:   []interface{}{":memory:"},
+			Before:    before,
+			Exists:    false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.Name, func(t *testing.T) {
+			db, err := test.Connector.Conn(test.Address...)
+			assert.NoError(t, err)
+			err = test.Before(db)
+			assert.NoError(t, err)
+
+			exists := db.Exists(test.Table)
+			if test.Exists {
+				assert.True(t, exists)
+				return
+			}
+
+			assert.False(t, exists)
 		})
 	}
 }
