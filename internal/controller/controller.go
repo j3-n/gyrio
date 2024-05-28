@@ -18,7 +18,7 @@ func Start() {
 		// Handle UI event
 		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
-			case "<C-c>", "q":
+			case "<C-c>":
 				// Quit
 				return
 			default:

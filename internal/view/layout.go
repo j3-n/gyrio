@@ -46,6 +46,17 @@ func NewLayout(grid *ui.Grid, layout [][]components.Interactable) *Layout {
 	return l
 }
 
+func (l *Layout) SelectElement(row int, col int) {
+	if len(l.NavLayout) >= row {
+		if len(l.NavLayout[row]) >= col {
+			l.row = row
+			l.col = col
+			l.interactMode = true
+			l.NavLayout[l.row][l.col].SetActive(true)
+		}
+	}
+}
+
 // Navigate right (+) or left (-) x spaces
 func (l *Layout) NavX(x int) {
 	if len(l.NavLayout) > 0 {

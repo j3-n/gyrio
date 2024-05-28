@@ -316,7 +316,6 @@ func (t *TableView) KeyboardEvent(e *ui.Event) {
 	}
 }
 
-// TODO: refactor these out somehow
 func (t *TableView) SetActive(active bool) {
 	t.isActive = active
 	t.UpdateBorderStyle()
