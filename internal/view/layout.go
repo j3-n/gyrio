@@ -7,7 +7,10 @@ import (
 )
 
 const (
-	INTERACT_KEY = "<Enter>"
+	INTERACT_KEY             = "<C-<Space>>"
+	INTERACT_KEY_PROMPT      = "Ctrl-Space"
+	INTERACT_SELECT_PROMPT   = "Select"
+	INTERACT_DESELECT_PROMPT = "Back"
 )
 
 // A layout is a Grid that can have widgets selected so that they can receive input
@@ -102,5 +105,18 @@ func (l *Layout) KeyboardEvent(e *ui.Event) {
 				l.NavY(1)
 			}
 		}
+	}
+}
+
+func (l *Layout) GetToolbarEntry() *components.ToolbarEntry {
+	if l.interactMode {
+		return &components.ToolbarEntry{
+			Key:  INTERACT_KEY_PROMPT,
+			Text: INTERACT_DESELECT_PROMPT,
+		}
+	}
+	return &components.ToolbarEntry{
+		Key:  INTERACT_KEY_PROMPT,
+		Text: INTERACT_SELECT_PROMPT,
 	}
 }

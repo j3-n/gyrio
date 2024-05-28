@@ -11,6 +11,13 @@ var (
 	STYLE_HOVER      = ui.NewStyle(ui.ColorWhite)
 )
 
+// Styles for input component
 var (
 	STYLE_CURSOR = ui.NewStyle(ui.ColorBlack, (ui.Color)(248))
+)
+
+// Styles for toolbar
+var (
+	STYLE_TOOLBAR_KEY  = ui.NewStyle(ui.ColorBlack, (ui.Color)(248))
+	STYLE_TOOLBAR_TEXT = ui.NewStyle(248)
 )
