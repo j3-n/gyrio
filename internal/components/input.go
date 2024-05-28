@@ -98,7 +98,9 @@ func (i *Input) Draw(buf *ui.Buffer) {
 	// TODO: text wrapping
 	buf.SetString(i.CurrentText, ui.NewStyle(ui.ColorWhite), i.Block.Inner.Min.Add(image.Pt(1, 0)))
 	// Render cursor
-	p := i.Block.Inner.Min.Add(image.Pt(i.cursorPos+1, 0))
-	r := buf.GetCell(p).Rune
-	buf.SetCell(ui.NewCell(r, util.STYLE_CURSOR), p)
+	if i.isActive {
+		p := i.Block.Inner.Min.Add(image.Pt(i.cursorPos+1, 0))
+		r := buf.GetCell(p).Rune
+		buf.SetCell(ui.NewCell(r, util.STYLE_CURSOR), p)
+	}
 }
