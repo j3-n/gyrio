@@ -86,3 +86,50 @@ func TestMod(t *testing.T) {
 		})
 	}
 }
+
+func TestWrapString(t *testing.T) {
+	testCases := []struct {
+		Name   string
+		Input  string
+		Width  int
+		Output string
+	}{
+		{
+			Name:   "Normal",
+			Input:  "abcdefghi",
+			Width:  3,
+			Output: "abc\ndef\nghi",
+		},
+		{
+			Name:   "SecondNormal",
+			Input:  "abcdefghi",
+			Width:  4,
+			Output: "abcd\nefgh\ni",
+		},
+		{
+			Name:   "1Width",
+			Input:  "abc",
+			Width:  1,
+			Output: "a\nb\nc",
+		},
+		{
+			Name:   "ZeroWidth",
+			Input:  "abcdefghi",
+			Width:  0,
+			Output: "",
+		},
+		{
+			Name:   "NegativeWidth",
+			Input:  "abcdefghi",
+			Width:  -1,
+			Output: "",
+		},
+	}
+
+	for _, test := range testCases {
+		t.Run(test.Name, func(t *testing.T) {
+			result := WrapString(test.Input, test.Width)
+			assert.Equal(t, test.Output, result, "Test that WrapString returns the expected result")
+		})
+	}
+}
