@@ -70,7 +70,6 @@ func initAppView() {
 		),
 	)
 
-	queryLayout := NewLayout(grid3, [][]components.Interactable{{table}, {input}})
-	queryLayout.SelectElement(1, 0)
+	queryLayout := NewLayout(grid3, [][]components.Interactable{{table}, {input}}, 1, 0)
 	AppView = NewApplicationView([]*Layout{queryLayout})
 }

@@ -25,36 +25,27 @@ func (l *Layout) Draw(buf *ui.Buffer) {
 	l.Grid.Draw(buf)
 }
 
-func NewLayout(grid *ui.Grid, layout [][]components.Interactable) *Layout {
+// Initialise a new Layout with the given grid and layout structure. The element at the given row and column in the
+// navigation layout will be selected by default.
+func NewLayout(grid *ui.Grid, layout [][]components.Interactable, row int, col int) *Layout {
 	l := &Layout{
 		Grid:      grid,
 		NavLayout: layout,
+		row:       row,
+		col:       col,
 	}
 
 	// Initialise layout styling
-	for i, r := range layout {
-		for j, c := range r {
+	for _, r := range layout {
+		for _, c := range r {
 			c.SetActive(false)
-			if i == 0 && j == 0 {
-				c.SetHovered(true)
-			} else {
-				c.SetHovered(false)
-			}
+			c.SetHovered(false)
 		}
 	}
+	layout[row][col].SetHovered(true)
+	l.ToggleInteract()
 
 	return l
-}
-
-func (l *Layout) SelectElement(row int, col int) {
-	if len(l.NavLayout) >= row {
-		if len(l.NavLayout[row]) >= col {
-			l.row = row
-			l.col = col
-			l.interactMode = true
-			l.NavLayout[l.row][l.col].SetActive(true)
-		}
-	}
 }
 
 // Navigate right (+) or left (-) x spaces
