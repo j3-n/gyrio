@@ -19,6 +19,8 @@ type ApplicationView struct {
 	screens []*Layout
 	// currentScreen stores the index of the active screen which will be rendered
 	currentScreen int
+	// Stores the stack of errors to be displayed over the application view.
+	errors []string
 
 	sync.Mutex
 }
@@ -50,6 +52,7 @@ func (v *ApplicationView) Draw(buf *ui.Buffer) {
 	e := v.screens[v.currentScreen].GetToolbarEntry()
 	buf.SetString(e.Key, util.STYLE_TOOLBAR_KEY, image.Pt(v.rect.Min.X, v.rect.Max.Y-TOOLBAR_HEIGHT))
 	buf.SetString(e.Text, util.STYLE_TOOLBAR_TEXT, image.Pt(v.rect.Min.X+len(e.Key)+1, v.rect.Max.Y-TOOLBAR_HEIGHT))
+	// TODO: draw error
 }
 
 // KeyboardEvent handles keyboard inputs to this view. If it is not a control input
@@ -58,8 +61,19 @@ func (v *ApplicationView) KeyboardEvent(e *ui.Event) {
 	if e.ID == "<Tab>" {
 		// Cycle along one screen layout
 		v.currentScreen = (v.currentScreen + 1) % len(v.screens)
+	} else if len(v.errors) > 0 && e.ID == "<Enter>" {
+		v.dismissError()
 	} else {
 		// Pass down to current layout
 		v.screens[v.currentScreen].KeyboardEvent(e)
 	}
+}
+
+// ShowError displays an error on top of the application view. The most recent error renders on top.
+func (v *ApplicationView) ShowError(err string) {
+	v.errors = append(v.errors, err)
+}
+
+func (v *ApplicationView) dismissError() {
+	v.errors = v.errors[:len(v.errors)-1]
 }
