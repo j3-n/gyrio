@@ -2,7 +2,6 @@ package cli
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/urfave/cli/v2"
@@ -92,15 +91,7 @@ var cmds = []*cli.Command{
 				},
 			},
 		},
-		Action: func(ctx *cli.Context) error {
-			fmt.Println("address:", ctx.String("address"))
-			fmt.Println("username:", ctx.String("username"))
-			fmt.Println("password:", ctx.String("password"))
-			fmt.Println("database:", ctx.String("database"))
-			fmt.Println("port:", ctx.String("port"))
-
-			return nil
-		},
+		Action: postgresAction(),
 	},
 
 	{
