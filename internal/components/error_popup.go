@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"image"
 	"strings"
 
@@ -37,4 +38,5 @@ func (e *ErrorPopup) Draw(buf *ui.Buffer) {
 	}
 
 	buf.SetString("<OK>", util.STYLE_ERROR_DISMISS_BUTTON, e.Block.Inner.Max.Sub(image.Pt(e.Block.Inner.Dx()/2+2, 1)))
+	buf.SetString(fmt.Sprintf("(%d more...)", e.NumErrors), util.STYLE_ERROR_TEXT, image.Pt(e.Block.Inner.Min.X, e.Block.Inner.Max.Y-1))
 }

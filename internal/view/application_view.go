@@ -67,7 +67,7 @@ func (v *ApplicationView) drawErrors(buf *ui.Buffer) {
 		w := float32(v.rect.Max.X) / 1.5
 		h := float32(v.rect.Max.Y) / 1.5
 		popup.SetRect(center.X-int(w/2), center.Y-int(h/2), center.X+int(w/2), center.Y+int(h/2))
-		buf.Fill(ui.NewCell(' ', util.STYLE_ERROR_BORDER), popup.GetRect().Inset(-1))
+		buf.Fill(ui.NewCell(' ', util.STYLE_ERROR_BORDER), popup.GetRect())
 		popup.Title = "Error"
 		popup.TitleStyle = util.STYLE_ERROR_TITLE
 		popup.BorderStyle = util.STYLE_ERROR_BORDER
