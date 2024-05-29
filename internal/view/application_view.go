@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	ui "github.com/gizak/termui/v3"
+	"github.com/j3-n/gyrio/internal/components"
 	"github.com/j3-n/gyrio/internal/pkg/util"
 )
 
@@ -31,6 +32,7 @@ func NewApplicationView(screens []*Layout) *ApplicationView {
 	return &ApplicationView{
 		screens:       screens,
 		currentScreen: 0,
+		errors:        []string{},
 	}
 }
 
@@ -52,7 +54,26 @@ func (v *ApplicationView) Draw(buf *ui.Buffer) {
 	e := v.screens[v.currentScreen].GetToolbarEntry()
 	buf.SetString(e.Key, util.STYLE_TOOLBAR_KEY, image.Pt(v.rect.Min.X, v.rect.Max.Y-TOOLBAR_HEIGHT))
 	buf.SetString(e.Text, util.STYLE_TOOLBAR_TEXT, image.Pt(v.rect.Min.X+len(e.Key)+1, v.rect.Max.Y-TOOLBAR_HEIGHT))
-	// TODO: draw error
+
+	v.drawErrors(buf)
+}
+
+func (v *ApplicationView) drawErrors(buf *ui.Buffer) {
+	if len(v.errors) > 0 {
+		// Draw most recent error
+		err := v.errors[len(v.errors)-1]
+		popup := components.NewErrorPopup(err, len(v.errors))
+		center := v.rect.Max.Div(2)
+		w := float32(v.rect.Max.X) / 1.5
+		h := float32(v.rect.Max.Y) / 1.5
+		popup.SetRect(center.X-int(w/2), center.Y-int(h/2), center.X+int(w/2), center.Y+int(h/2))
+		buf.Fill(ui.NewCell(' ', util.STYLE_ERROR_BORDER), popup.GetRect().Inset(-1))
+		popup.Title = "Error"
+		popup.TitleStyle = util.STYLE_ERROR_TITLE
+		popup.BorderStyle = util.STYLE_ERROR_BORDER
+
+		popup.Draw(buf)
+	}
 }
 
 // KeyboardEvent handles keyboard inputs to this view. If it is not a control input

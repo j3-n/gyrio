@@ -40,28 +40,14 @@ func initAppView() {
 		{"3", "Bosh Jorges", "josh@lockheedmartin.com", "123456789", "4 toes way"},
 	}
 
-	grid := ui.NewGrid()
 	w, h := ui.TerminalDimensions()
-	grid.SetRect(0, 0, w, h)
-
-	grid.Set(ui.NewRow(1.0/2,
-		ui.NewCol(1.0/4, table),
-		ui.NewCol(1.0/4, table),
-		ui.NewCol(1.0/4, table),
-		ui.NewCol(1.0/4, table),
-	),
-	)
-
-	grid2 := ui.NewGrid()
-	grid2.SetRect(0, 0, w, h)
-	grid2.Set(ui.NewRow(1.0, ui.NewCol(1.0, table)))
 
 	input := components.NewInput()
 	input.Title = "Query"
 	input.Border = true
-	grid3 := ui.NewGrid()
-	grid3.SetRect(0, 0, w, h)
-	grid3.Set(
+	queryGrid := ui.NewGrid()
+	queryGrid.SetRect(0, 0, w, h)
+	queryGrid.Set(
 		ui.NewRow(1.0/1.5,
 			ui.NewCol(1.0, table),
 		),
@@ -70,6 +56,6 @@ func initAppView() {
 		),
 	)
 
-	queryLayout := NewLayout(grid3, [][]components.Interactable{{table}, {input}}, 1, 0)
+	queryLayout := NewLayout(queryGrid, [][]components.Interactable{{table}, {input}}, 1, 0)
 	AppView = NewApplicationView([]*Layout{queryLayout})
 }
