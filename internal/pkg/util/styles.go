@@ -21,3 +21,11 @@ var (
 	STYLE_TOOLBAR_KEY  = ui.NewStyle(ui.ColorBlack, (ui.Color)(248))
 	STYLE_TOOLBAR_TEXT = ui.NewStyle(248)
 )
+
+// Styles for error popups
+var (
+	STYLE_ERROR_BORDER         = ui.NewStyle(ui.ColorRed)
+	STYLE_ERROR_TITLE          = ui.NewStyle(ui.ColorClear, ui.ColorRed)
+	STYLE_ERROR_TEXT           = ui.NewStyle(ui.ColorRed)
+	STYLE_ERROR_DISMISS_BUTTON = ui.NewStyle(ui.ColorRed, (ui.Color)(248))
+)
