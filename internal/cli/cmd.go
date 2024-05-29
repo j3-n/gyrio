@@ -38,10 +38,7 @@ var cmds = []*cli.Command{
 				Required: true,
 			},
 		},
-		Action: func(ctx *cli.Context) error {
-			fmt.Println("file:", ctx.String("file"))
-			return nil
-		},
+		Action: sqliteAction(),
 	},
 
 	{
