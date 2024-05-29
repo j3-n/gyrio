@@ -32,6 +32,35 @@ func fetch(db *db.DB) ([][]map[string]any, error) {
 	return data, nil
 }
 
+// Format the data from a tables data into an []string of keys and
+// a [][]string of data.
+// Will convert the generic any type into a string.
+func format(data []map[string]any) ([]string, [][]string) {
+	keys := make([]string, len(data[0]))
+	i := 0
+	for key := range data[0] {
+		keys[i] = key
+		i++
+	}
+
+	tbl := make([][]string, len(data))
+	i = 0
+	for _, chunk := range data {
+		j := 0
+		tbl[i] = make([]string, len(chunk))
+
+		for _, val := range chunk {
+			str := fmt.Sprintf("%v", val)
+			tbl[i][j] = str
+			j++
+		}
+
+		i++
+	}
+
+	return keys, tbl
+}
+
 func sqliteAction() cli.ActionFunc {
 	return func(ctx *cli.Context) error {
 		file := ctx.String("file")
@@ -49,6 +78,10 @@ func sqliteAction() cli.ActionFunc {
 		}
 
 		fmt.Println(data)
+		keys, tbl := format(data[0])
+
+		fmt.Println(keys)
+		fmt.Println(tbl)
 
 		return nil
 	}
