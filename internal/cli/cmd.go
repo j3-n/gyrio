@@ -93,14 +93,110 @@ var cmds = []*cli.Command{
 		},
 		Action: postgresAction(),
 	},
-
 	{
-		// TODO: add mysql support
 		Name:    "mysql",
 		Aliases: []string{"ms"},
 		Usage:   "view a mysql database with gyrio",
-		Action: func(ctx *cli.Context) error {
-			return nil
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "username",
+				Aliases:  []string{"U"},
+				Usage:    "mysql username",
+				Required: true,
+			},
+			// TODO: this can be a potential security weakness, may want to remove this in the future.
+			&cli.StringFlag{
+				Name:     "password",
+				Aliases:  []string{"P"},
+				Usage:    "mysql password",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "address",
+				Aliases:  []string{"a"},
+				Usage:    "mysql host address, not including the port",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:        "port",
+				Aliases:     []string{"p"},
+				Usage:       "postgres port",
+				Value:       "3306",
+				DefaultText: "3306",
+				Required:    false,
+				Action: func(ctx *cli.Context, val string) error {
+					i, err := strconv.Atoi(val)
+					if err != nil {
+						return err
+					}
+
+					if i > 65535 {
+						return errors.New("error, port has exceeded maximum value")
+					}
+
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "database",
+				Aliases:  []string{"d"},
+				Usage:    "mysql database name",
+				Required: true,
+			},
 		},
+		Action: mysqlAction(),
+	},
+	{
+		Name:    "maria",
+		Aliases: []string{"ma"},
+		Usage:   "view a maria database with gyrio",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "username",
+				Aliases:  []string{"U"},
+				Usage:    "maria username",
+				Required: true,
+			},
+			// TODO: this can be a potential security weakness, may want to remove this in the future.
+			&cli.StringFlag{
+				Name:     "password",
+				Aliases:  []string{"P"},
+				Usage:    "maria password",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "address",
+				Aliases:  []string{"a"},
+				Usage:    "maria host address, not including the port",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:        "port",
+				Aliases:     []string{"p"},
+				Usage:       "postgres port",
+				Value:       "3306",
+				DefaultText: "3306",
+				Required:    false,
+				Action: func(ctx *cli.Context, val string) error {
+					i, err := strconv.Atoi(val)
+					if err != nil {
+						return err
+					}
+
+					if i > 65535 {
+						return errors.New("error, port has exceeded maximum value")
+					}
+
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "database",
+				Aliases:  []string{"d"},
+				Usage:    "maria database name",
+				Required: true,
+			},
+		},
+		Action: mariaAction(),
 	},
 }

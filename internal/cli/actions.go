@@ -112,3 +112,55 @@ func postgresAction() cli.ActionFunc {
 		return nil
 	}
 }
+
+func mysqlAction() cli.ActionFunc {
+	return func(ctx *cli.Context) error {
+		user := ctx.String("username")
+		pass := ctx.String("password")
+		addr := ctx.String("address")
+		port := ctx.String("port")
+		name := ctx.String("database")
+
+		conn := db.New(db.MySQL)
+		db, err := conn.Conn(user, pass, addr, port, name)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		data, err := fetch(db)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(data)
+
+		return nil
+	}
+}
+
+func mariaAction() cli.ActionFunc {
+	return func(ctx *cli.Context) error {
+		user := ctx.String("username")
+		pass := ctx.String("password")
+		addr := ctx.String("address")
+		port := ctx.String("port")
+		name := ctx.String("database")
+
+		conn := db.New(db.Maria)
+		db, err := conn.Conn(user, pass, addr, port, name)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+
+		data, err := fetch(db)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(data)
+
+		return nil
+	}
+}
