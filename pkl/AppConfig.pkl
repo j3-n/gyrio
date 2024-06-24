@@ -1,5 +1,5 @@
 @go.Package { name = "github.com/j3-n/gyrio/internal/config" }
-module gyrio.AppConfig
+module gyrio.pkl.AppConfig
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.7.0#/go.pkl"
 import "KeybindConfig.pkl"
