@@ -1,0 +1,10 @@
+@go.Package { name = "github.com/j3-n/gyrio/internal/config/keybinds" }
+module gyrio.KeybindConfig
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.7.0#/go.pkl"
+
+select: String
+up: String
+down: String
+left: String
+right: String
