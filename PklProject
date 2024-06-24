@@ -1,0 +1,11 @@
+amends "pkl:Project"
+
+package {
+    name = "gyrio"
+    version = "0.1.0"
+    description = "configure your gyrio experience with a pkl template."
+    license = "MIT"
+    baseUri = "package://pkg.pkl-lang.org/github.com/j3-n/\(name)"
+    packageZipUrl = "https://github.com/j3-n/\(name)/releases/download/\(name)@\(version)/\(name)@\(version).zip"
+    sourceCode = "https://github.com/j3-n/gyrio"
+}
