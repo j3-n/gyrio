@@ -4,4 +4,5 @@
     description = "configure your gyrio experience with a pkl template."
     author = "J3-N"
     license = "MIT"
+    packageZipUrl = "https://github.com/j3-n/gyrio/archive/refs/tags/0.1.0.zip"
 }
