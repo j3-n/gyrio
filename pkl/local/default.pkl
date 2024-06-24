@@ -1,0 +1,9 @@
+amends "../AppConfig.pkl"
+
+keybinds {
+    select = "Space"
+    up = "Up"
+    down = "Down"
+    left = "Left"
+    right = "Right"
+}

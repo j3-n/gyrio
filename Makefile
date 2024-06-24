@@ -1,5 +1,6 @@
 GO ?= go
 GOFMT ?= gofmt "-s"
+PKL ?= "pkl-gen-go"
 GOFILES := $(shell find . -name "*.go")
 GOMODULES := $(shell go list ./...)
 
@@ -39,3 +40,7 @@ info:
 	@$(GO) vet $(GOMODULES)
 	@$(GO) list $(GOMODULES)
 	@$(GO) version
+
+.phony: pkl-gen
+pkl-gen:
+	$(PKL) pkl/AppConfig.pkl
