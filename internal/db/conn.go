@@ -8,6 +8,8 @@ var (
 	EmptyConn  = emptyConn{}
 	SQLiteConn = sqliteConn{}
 	PgConn     = pgConn{}
+	MySQLConn  = mysqlConn{}
+	MariaConn  = mariaConn{}
 )
 
 func New(t DBType) Connector {
@@ -19,7 +21,10 @@ func New(t DBType) Connector {
 		return pgConn{}
 
 	case MySQL:
-		return nil
+		return mysqlConn{}
+
+	case Maria:
+		return mariaConn{}
 
 	default:
 		return emptyConn{}

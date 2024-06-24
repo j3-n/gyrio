@@ -23,6 +23,8 @@ type Input struct {
 	cursorPos int
 	isActive  bool
 	isHovered bool
+
+	observers []func()
 }
 
 // NewInput initialises and returns a new Input component.
@@ -46,6 +48,8 @@ func (i *Input) KeyboardEvent(e *ui.Event) {
 				i.NavRight()
 			case "<Backspace>":
 				i.Backspace()
+			case "<Enter>":
+				i.NotifyObservers()
 			}
 		}
 	}
@@ -106,5 +110,15 @@ func (i *Input) Draw(buf *ui.Buffer) {
 		p := i.Block.Inner.Min.Add(image.Pt(col+1, row))
 		r := buf.GetCell(p).Rune
 		buf.SetCell(ui.NewCell(r, util.STYLE_CURSOR), p)
+	}
+}
+
+func (i *Input) RegisterObserver(f func()) {
+	i.observers = append(i.observers, f)
+}
+
+func (i *Input) NotifyObservers() {
+	for _, f := range i.observers {
+		f()
 	}
 }

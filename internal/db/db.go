@@ -16,6 +16,7 @@ const (
 	SQLite                 // 1
 	Postgres               // 2
 	MySQL                  // 3
+	Maria                  // 4
 )
 
 // Stores the gorm database connection as well as the type of the database.
@@ -62,8 +63,10 @@ func (d *DB) Tables() ([]string, error) {
 			return "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"
 
 		case MySQL:
-			// TODO:
-			return ""
+			return "SHOW TABLES"
+
+		case Maria:
+			return "SHOW TABLES"
 
 		default:
 			return ""
