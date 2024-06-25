@@ -2,7 +2,7 @@
   "name": "gyrio",
   "packageUri": "package://pkg.pkl-lang.org/github.com/j3-n/gyrio@0.1.0",
   "version": "0.1.0",
-  "packageZipUrl": "https://github.com/j3-n/gyrio/archive/refs/tags/0.1.0.zip",
+  "packageZipUrl": "https://github.com/j3-n/gyrio/releases/download/gyrio@0.1.0/gyrio@0.1.0.zip",
   "packageZipChecksums": {
     "sha256": "f2f0c0e62a68b6393b26d7289d0ce45f9e25a354fcb2fadeb48cddcfba1332c9"
   },

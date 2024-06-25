@@ -6,6 +6,6 @@ package {
     description = "configure your gyrio experience with a pkl template."
     license = "MIT"
     baseUri = "package://pkg.pkl-lang.org/github.com/j3-n/\(name)"
-    packageZipUrl = "https://github.com/j3-n/\(name)/archive/refs/tags/\(version).zip"
+    packageZipUrl = "https://github.com/j3-n/gyrio/releases/download/\(name)@\(version)/\(name)@\(version).zip"
     sourceCode = "https://github.com/j3-n/gyrio"
 }
