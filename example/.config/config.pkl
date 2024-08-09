@@ -1,0 +1,9 @@
+amends "https://raw.githubusercontent.com/j3-n/gyrio/main/pkl/AppConfig.pkl"
+
+keybinds {
+    select = "Space"
+    up = "Up"
+    down = "Down"
+    left = "Left"
+    right = "Right"
+}
